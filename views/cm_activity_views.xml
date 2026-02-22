@@ -5,7 +5,7 @@
         <field name="name">cm.activity.list</field>
         <field name="model">cm.activity</field>
         <field name="arch" type="xml">
-            <list editable="bottom">
+            <tree editable="bottom">
                 <field name="jurisdiction_id"/>
                 <field name="cuacm_code"/>
                 <field name="name"/>
@@ -14,7 +14,7 @@
                 <field name="date_from" optional="show"/>
                 <field name="date_to" optional="show"/>
                 <field name="company_id" column_invisible="True"/>
-            </list>
+            </tree>
         </field>
     </record>
 

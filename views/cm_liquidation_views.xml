@@ -6,7 +6,7 @@
         <field name="name">cm.liquidation.list</field>
         <field name="model">cm.liquidation</field>
         <field name="arch" type="xml">
-            <list decoration-info="state == 'draft'"
+            <tree decoration-info="state == 'draft'"
                   decoration-warning="state == 'calculated'"
                   decoration-success="state == 'confirmed'">
                 <field name="period"/>
@@ -21,7 +21,7 @@
                        decoration-info="state == 'draft'"
                        decoration-warning="state == 'calculated'"
                        decoration-success="state == 'confirmed'"/>
-            </list>
+            </tree>
         </field>
     </record>
 
@@ -61,7 +61,7 @@
                     <notebook>
                         <page string="Líneas por Jurisdicción" name="lines">
                             <field name="line_ids">
-                                <list editable="bottom">
+                                <tree editable="bottom">
                                     <field name="jurisdiction_id"/>
                                     <field name="activity_id"/>
                                     <field name="coefficient"/>
@@ -79,7 +79,7 @@
                                     <field name="saldo" sum="Total" decoration-bf="1"
                                            decoration-danger="saldo &gt; 0"
                                            decoration-success="saldo &lt;= 0"/>
-                                </list>
+                                </tree>
                             </field>
                         </page>
                     </notebook>

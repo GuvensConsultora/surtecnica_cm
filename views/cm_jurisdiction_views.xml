@@ -5,12 +5,12 @@
         <field name="name">cm.jurisdiction.list</field>
         <field name="model">cm.jurisdiction</field>
         <field name="arch" type="xml">
-            <list editable="bottom">
+            <tree editable="bottom">
                 <field name="code"/>
                 <field name="name"/>
                 <field name="state_id"/>
                 <field name="active" optional="hide"/>
-            </list>
+            </tree>
         </field>
     </record>
 

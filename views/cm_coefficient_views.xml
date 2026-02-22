@@ -5,7 +5,7 @@
         <field name="name">cm.coefficient.list</field>
         <field name="model">cm.coefficient</field>
         <field name="arch" type="xml">
-            <list editable="bottom">
+            <tree editable="bottom">
                 <field name="fiscal_year"/>
                 <field name="jurisdiction_id"/>
                 <field name="income_amount"/>
@@ -16,7 +16,7 @@
                 <field name="expense_ratio"/>
                 <field name="coefficient" decoration-bf="1"/>
                 <field name="company_id" column_invisible="True"/>
-            </list>
+            </tree>
         </field>
     </record>
 
