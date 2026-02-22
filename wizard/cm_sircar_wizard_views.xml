@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="cm_sircar_wizard_form" model="ir.ui.view">
+        <field name="name">cm.sircar.wizard.form</field>
+        <field name="model">cm.sircar.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Exportar SIRCAR">
+                <!-- Estado draft: parámetros -->
+                <group invisible="state != 'draft'">
+                    <group string="Período">
+                        <field name="date_from"/>
+                        <field name="date_to"/>
+                    </group>
+                    <group string="Filtro">
+                        <field name="jurisdiction_id"/>
+                    </group>
+                </group>
+
+                <!-- Estado done: archivo generado -->
+                <div invisible="state != 'done'">
+                    <group string="Archivo Generado">
+                        <field name="file_data" filename="file_name"/>
+                        <field name="file_name" invisible="1"/>
+                        <field name="records_count"/>
+                    </group>
+                </div>
+
+                <field name="state" invisible="1"/>
+
+                <footer>
+                    <button name="action_generate"
+                            string="Generar SIRCAR"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <button name="action_download"
+                            string="Descargar ZIP"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state != 'done'"/>
+                    <button string="Cerrar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_cm_sircar_wizard" model="ir.actions.act_window">
+        <field name="name">Exportar SIRCAR</field>
+        <field name="res_model">cm.sircar.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

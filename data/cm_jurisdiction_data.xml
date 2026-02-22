@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo noupdate="1">
+
+    <!-- 24 jurisdicciones del Convenio Multilateral (códigos COMARB 901-924) -->
+    <!-- Por qué: Datos maestros que no cambian, se cargan una sola vez (noupdate=1) -->
+    <!-- Mapeo state_id: usa XML IDs estándar de Odoo base (ISO 3166-2:AR) -->
+
+    <record id="cm_jurisdiction_901" model="cm.jurisdiction">
+        <field name="code">901</field>
+        <field name="name">Capital Federal</field>
+        <field name="state_id" ref="base.state_ar_c"/>
+    </record>
+
+    <record id="cm_jurisdiction_902" model="cm.jurisdiction">
+        <field name="code">902</field>
+        <field name="name">Buenos Aires</field>
+        <field name="state_id" ref="base.state_ar_b"/>
+    </record>
+
+    <record id="cm_jurisdiction_903" model="cm.jurisdiction">
+        <field name="code">903</field>
+        <field name="name">Catamarca</field>
+        <field name="state_id" ref="base.state_ar_k"/>
+    </record>
+
+    <record id="cm_jurisdiction_904" model="cm.jurisdiction">
+        <field name="code">904</field>
+        <field name="name">Córdoba</field>
+        <field name="state_id" ref="base.state_ar_x"/>
+    </record>
+
+    <record id="cm_jurisdiction_905" model="cm.jurisdiction">
+        <field name="code">905</field>
+        <field name="name">Corrientes</field>
+        <field name="state_id" ref="base.state_ar_w"/>
+    </record>
+
+    <record id="cm_jurisdiction_906" model="cm.jurisdiction">
+        <field name="code">906</field>
+        <field name="name">Chaco</field>
+        <field name="state_id" ref="base.state_ar_h"/>
+    </record>
+
+    <record id="cm_jurisdiction_907" model="cm.jurisdiction">
+        <field name="code">907</field>
+        <field name="name">Chubut</field>
+        <field name="state_id" ref="base.state_ar_u"/>
+    </record>
+
+    <record id="cm_jurisdiction_908" model="cm.jurisdiction">
+        <field name="code">908</field>
+        <field name="name">Entre Ríos</field>
+        <field name="state_id" ref="base.state_ar_e"/>
+    </record>
+
+    <record id="cm_jurisdiction_909" model="cm.jurisdiction">
+        <field name="code">909</field>
+        <field name="name">Formosa</field>
+        <field name="state_id" ref="base.state_ar_p"/>
+    </record>
+
+    <record id="cm_jurisdiction_910" model="cm.jurisdiction">
+        <field name="code">910</field>
+        <field name="name">Jujuy</field>
+        <field name="state_id" ref="base.state_ar_y"/>
+    </record>
+
+    <record id="cm_jurisdiction_911" model="cm.jurisdiction">
+        <field name="code">911</field>
+        <field name="name">La Pampa</field>
+        <field name="state_id" ref="base.state_ar_l"/>
+    </record>
+
+    <record id="cm_jurisdiction_912" model="cm.jurisdiction">
+        <field name="code">912</field>
+        <field name="name">La Rioja</field>
+        <field name="state_id" ref="base.state_ar_f"/>
+    </record>
+
+    <record id="cm_jurisdiction_913" model="cm.jurisdiction">
+        <field name="code">913</field>
+        <field name="name">Mendoza</field>
+        <field name="state_id" ref="base.state_ar_m"/>
+    </record>
+
+    <record id="cm_jurisdiction_914" model="cm.jurisdiction">
+        <field name="code">914</field>
+        <field name="name">Misiones</field>
+        <field name="state_id" ref="base.state_ar_n"/>
+    </record>
+
+    <record id="cm_jurisdiction_915" model="cm.jurisdiction">
+        <field name="code">915</field>
+        <field name="name">Neuquén</field>
+        <field name="state_id" ref="base.state_ar_q"/>
+    </record>
+
+    <record id="cm_jurisdiction_916" model="cm.jurisdiction">
+        <field name="code">916</field>
+        <field name="name">Río Negro</field>
+        <field name="state_id" ref="base.state_ar_r"/>
+    </record>
+
+    <record id="cm_jurisdiction_917" model="cm.jurisdiction">
+        <field name="code">917</field>
+        <field name="name">Salta</field>
+        <field name="state_id" ref="base.state_ar_a"/>
+    </record>
+
+    <record id="cm_jurisdiction_918" model="cm.jurisdiction">
+        <field name="code">918</field>
+        <field name="name">San Juan</field>
+        <field name="state_id" ref="base.state_ar_j"/>
+    </record>
+
+    <record id="cm_jurisdiction_919" model="cm.jurisdiction">
+        <field name="code">919</field>
+        <field name="name">San Luis</field>
+        <field name="state_id" ref="base.state_ar_d"/>
+    </record>
+
+    <record id="cm_jurisdiction_920" model="cm.jurisdiction">
+        <field name="code">920</field>
+        <field name="name">Santa Cruz</field>
+        <field name="state_id" ref="base.state_ar_z"/>
+    </record>
+
+    <record id="cm_jurisdiction_921" model="cm.jurisdiction">
+        <field name="code">921</field>
+        <field name="name">Santa Fe</field>
+        <field name="state_id" ref="base.state_ar_s"/>
+    </record>
+
+    <record id="cm_jurisdiction_922" model="cm.jurisdiction">
+        <field name="code">922</field>
+        <field name="name">Santiago del Estero</field>
+        <field name="state_id" ref="base.state_ar_g"/>
+    </record>
+
+    <record id="cm_jurisdiction_923" model="cm.jurisdiction">
+        <field name="code">923</field>
+        <field name="name">Tierra del Fuego</field>
+        <field name="state_id" ref="base.state_ar_v"/>
+    </record>
+
+    <record id="cm_jurisdiction_924" model="cm.jurisdiction">
+        <field name="code">924</field>
+        <field name="name">Tucumán</field>
+        <field name="state_id" ref="base.state_ar_t"/>
+    </record>
+
+</odoo>

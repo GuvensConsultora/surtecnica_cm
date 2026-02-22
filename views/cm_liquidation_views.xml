@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- Liquidación - List -->
+    <record id="cm_liquidation_list" model="ir.ui.view">
+        <field name="name">cm.liquidation.list</field>
+        <field name="model">cm.liquidation</field>
+        <field name="arch" type="xml">
+            <list decoration-info="state == 'draft'"
+                  decoration-warning="state == 'calculated'"
+                  decoration-success="state == 'confirmed'">
+                <field name="period"/>
+                <field name="date_from"/>
+                <field name="date_to"/>
+                <field name="fiscal_year"/>
+                <field name="total_base_gravada" sum="Total"/>
+                <field name="total_impuesto" sum="Total"/>
+                <field name="total_deducciones" sum="Total"/>
+                <field name="total_saldo" sum="Total" decoration-bf="1"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-warning="state == 'calculated'"
+                       decoration-success="state == 'confirmed'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Liquidación - Form -->
+    <record id="cm_liquidation_form" model="ir.ui.view">
+        <field name="name">cm.liquidation.form</field>
+        <field name="model">cm.liquidation</field>
+        <field name="arch" type="xml">
+            <form string="Liquidación CM">
+                <header>
+                    <button name="action_confirm" string="Confirmar"
+                            type="object" class="btn-primary"
+                            invisible="state != 'calculated'"
+                            groups="surtecnica_cm.group_cm_manager"/>
+                    <button name="action_draft" string="Volver a Borrador"
+                            type="object"
+                            invisible="state != 'calculated'"
+                            groups="surtecnica_cm.group_cm_manager"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,calculated,confirmed"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="period"/>
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                        </group>
+                        <group>
+                            <field name="fiscal_year"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Líneas por Jurisdicción" name="lines">
+                            <field name="line_ids">
+                                <list editable="bottom">
+                                    <field name="jurisdiction_id"/>
+                                    <field name="activity_id"/>
+                                    <field name="coefficient"/>
+                                    <field name="base_gravada"/>
+                                    <field name="base_no_gravada" optional="hide"/>
+                                    <field name="base_exenta" optional="hide"/>
+                                    <field name="base_distribuida"/>
+                                    <field name="alicuota"/>
+                                    <field name="impuesto_determinado" sum="Total"/>
+                                    <field name="retenciones_sufridas" sum="Total"/>
+                                    <field name="percepciones_sufridas" sum="Total"/>
+                                    <field name="recaudaciones_bancarias" optional="show" sum="Total"/>
+                                    <field name="saldo_anterior" optional="show"/>
+                                    <field name="total_deducciones" sum="Total"/>
+                                    <field name="saldo" sum="Total" decoration-bf="1"
+                                           decoration-danger="saldo &gt; 0"
+                                           decoration-success="saldo &lt;= 0"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                    <group string="Totales">
+                        <group>
+                            <field name="total_base_gravada"/>
+                            <field name="total_impuesto"/>
+                        </group>
+                        <group>
+                            <field name="total_deducciones"/>
+                            <field name="total_saldo" decoration-bf="1"/>
+                        </group>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Liquidación - Search -->
+    <record id="cm_liquidation_search" model="ir.ui.view">
+        <field name="name">cm.liquidation.search</field>
+        <field name="model">cm.liquidation</field>
+        <field name="arch" type="xml">
+            <search string="Liquidaciones CM">
+                <field name="period"/>
+                <field name="fiscal_year"/>
+                <separator/>
+                <filter name="draft" string="Borrador"
+                        domain="[('state', '=', 'draft')]"/>
+                <filter name="calculated" string="Calculada"
+                        domain="[('state', '=', 'calculated')]"/>
+                <filter name="confirmed" string="Confirmada"
+                        domain="[('state', '=', 'confirmed')]"/>
+                <separator/>
+                <filter name="group_period" string="Período"
+                        context="{'group_by': 'period'}"/>
+                <filter name="group_state" string="Estado"
+                        context="{'group_by': 'state'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_cm_liquidation" model="ir.actions.act_window">
+        <field name="name">Liquidaciones CM</field>
+        <field name="res_model">cm.liquidation</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

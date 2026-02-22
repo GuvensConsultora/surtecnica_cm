@@ -1,0 +1,17 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_cm_jurisdiction_user,cm.jurisdiction.user,model_cm_jurisdiction,group_cm_user,1,0,0,0
+access_cm_jurisdiction_manager,cm.jurisdiction.manager,model_cm_jurisdiction,group_cm_manager,1,1,1,1
+access_cm_activity_user,cm.activity.user,model_cm_activity,group_cm_user,1,0,0,0
+access_cm_activity_manager,cm.activity.manager,model_cm_activity,group_cm_manager,1,1,1,1
+access_cm_coefficient_user,cm.coefficient.user,model_cm_coefficient,group_cm_user,1,0,0,0
+access_cm_coefficient_manager,cm.coefficient.manager,model_cm_coefficient,group_cm_manager,1,1,1,1
+access_cm_liquidation_user,cm.liquidation.user,model_cm_liquidation,group_cm_user,1,1,0,0
+access_cm_liquidation_manager,cm.liquidation.manager,model_cm_liquidation,group_cm_manager,1,1,1,1
+access_cm_liquidation_line_user,cm.liquidation.line.user,model_cm_liquidation_line,group_cm_user,1,1,0,0
+access_cm_liquidation_line_manager,cm.liquidation.line.manager,model_cm_liquidation_line,group_cm_manager,1,1,1,1
+access_cm_coefficient_wizard,cm.coefficient.wizard,model_cm_coefficient_wizard,group_cm_manager,1,1,1,1
+access_cm_liquidation_wizard,cm.liquidation.wizard,model_cm_liquidation_wizard,group_cm_user,1,1,1,1
+access_cm_sircar_wizard,cm.sircar.wizard,model_cm_sircar_wizard,group_cm_user,1,1,1,1
+access_cm_sifere_wizard,cm.sifere.wizard,model_cm_sifere_wizard,group_cm_user,1,1,1,1
+access_cm_cm03_wizard,cm.cm03.wizard,model_cm_cm03_wizard,group_cm_user,1,1,1,1
+access_cm_cm05_wizard,cm.cm05.wizard,model_cm_cm05_wizard,group_cm_user,1,1,1,1

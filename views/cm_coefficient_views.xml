@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="cm_coefficient_list" model="ir.ui.view">
+        <field name="name">cm.coefficient.list</field>
+        <field name="model">cm.coefficient</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="fiscal_year"/>
+                <field name="jurisdiction_id"/>
+                <field name="income_amount"/>
+                <field name="income_total"/>
+                <field name="income_ratio"/>
+                <field name="expense_amount"/>
+                <field name="expense_total"/>
+                <field name="expense_ratio"/>
+                <field name="coefficient" decoration-bf="1"/>
+                <field name="company_id" column_invisible="True"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="cm_coefficient_form" model="ir.ui.view">
+        <field name="name">cm.coefficient.form</field>
+        <field name="model">cm.coefficient</field>
+        <field name="arch" type="xml">
+            <form string="Coeficiente Unificado">
+                <sheet>
+                    <group>
+                        <group string="Identificación">
+                            <field name="fiscal_year"/>
+                            <field name="jurisdiction_id"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group string="Coeficiente">
+                            <field name="coefficient" widget="percentage"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Ingresos (ejercicio anterior)">
+                            <field name="income_amount"/>
+                            <field name="income_total"/>
+                            <field name="income_ratio"/>
+                        </group>
+                        <group string="Gastos (ejercicio anterior)">
+                            <field name="expense_amount"/>
+                            <field name="expense_total"/>
+                            <field name="expense_ratio"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="cm_coefficient_search" model="ir.ui.view">
+        <field name="name">cm.coefficient.search</field>
+        <field name="model">cm.coefficient</field>
+        <field name="arch" type="xml">
+            <search string="Coeficientes CM">
+                <field name="fiscal_year"/>
+                <field name="jurisdiction_id"/>
+                <separator/>
+                <filter name="group_year" string="Ejercicio"
+                        context="{'group_by': 'fiscal_year'}"/>
+                <filter name="group_jurisdiction" string="Jurisdicción"
+                        context="{'group_by': 'jurisdiction_id'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_cm_coefficient" model="ir.actions.act_window">
+        <field name="name">Coeficientes Unificados</field>
+        <field name="res_model">cm.coefficient</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

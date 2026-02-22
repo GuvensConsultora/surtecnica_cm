@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- Herencia vista form de res.company para agregar jurisdicción sede CM -->
+    <record id="res_company_form_cm" model="ir.ui.view">
+        <field name="name">res.company.form.cm</field>
+        <field name="model">res.company</field>
+        <field name="inherit_id" ref="base.view_company_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='general_info']" position="after">
+                <page string="Convenio Multilateral" name="cm_config">
+                    <group>
+                        <group>
+                            <field name="cm_sede_jurisdiction_id"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

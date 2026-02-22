@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- Menú raíz: Contabilidad > Convenio Multilateral -->
+    <!-- Por qué: Se ubica como menú principal en Contabilidad porque CM
+         tiene configuración, liquidación y exportaciones propias -->
+
+    <!-- Configuración CM bajo Contabilidad > Configuración -->
+    <menuitem id="menu_cm_config"
+              name="Convenio Multilateral"
+              parent="account.menu_finance_configuration"
+              sequence="50"/>
+
+    <menuitem id="menu_cm_jurisdiction"
+              name="Jurisdicciones CM"
+              parent="menu_cm_config"
+              action="action_cm_jurisdiction"
+              sequence="10"/>
+
+    <menuitem id="menu_cm_activity"
+              name="Actividades CUACM"
+              parent="menu_cm_config"
+              action="action_cm_activity"
+              sequence="20"/>
+
+    <menuitem id="menu_cm_coefficient"
+              name="Coeficientes Unificados"
+              parent="menu_cm_config"
+              action="action_cm_coefficient"
+              sequence="30"/>
+
+    <!-- Liquidaciones CM bajo Contabilidad > Contabilidad -->
+    <menuitem id="menu_cm_liquidation"
+              name="Liquidación CM"
+              parent="account.menu_finance"
+              action="action_cm_liquidation"
+              sequence="50"/>
+
+    <!-- Exportaciones CM bajo Contabilidad > Informes -->
+    <menuitem id="menu_cm_reports"
+              name="Convenio Multilateral"
+              parent="account.menu_finance_reports"
+              sequence="80"/>
+
+    <menuitem id="menu_cm_sircar"
+              name="SIRCAR (Percepciones)"
+              parent="menu_cm_reports"
+              action="action_cm_sircar_wizard"
+              sequence="10"/>
+
+    <menuitem id="menu_cm_sifere"
+              name="SIFERE (Deducciones)"
+              parent="menu_cm_reports"
+              action="action_cm_sifere_wizard"
+              sequence="20"/>
+
+    <menuitem id="menu_cm_cm03"
+              name="CM03 (DDJJ Mensual)"
+              parent="menu_cm_reports"
+              action="action_cm_cm03_wizard"
+              sequence="30"/>
+
+    <menuitem id="menu_cm_cm05"
+              name="CM05 (Coef. Anual)"
+              parent="menu_cm_reports"
+              action="action_cm_cm05_wizard"
+              sequence="40"/>
+
+    <menuitem id="menu_cm_gen_liquidation"
+              name="Generar Liquidación"
+              parent="menu_cm_reports"
+              action="action_cm_liquidation_wizard"
+              sequence="5"/>
+
+    <menuitem id="menu_cm_calc_coefficient"
+              name="Calcular Coeficientes"
+              parent="menu_cm_reports"
+              action="action_cm_coefficient_wizard"
+              sequence="6"/>
+
+</odoo>

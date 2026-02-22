@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="cm_coefficient_wizard_form" model="ir.ui.view">
+        <field name="name">cm.coefficient.wizard.form</field>
+        <field name="model">cm.coefficient.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Calcular Coeficientes CM">
+                <group>
+                    <group>
+                        <field name="base_year"/>
+                        <field name="target_year"/>
+                    </group>
+                </group>
+                <separator string="Información"/>
+                <div class="alert alert-info" role="alert">
+                    Se calcularán los coeficientes unificados para el ejercicio
+                    <b>Año Aplicación</b> usando los datos de ingresos y gastos
+                    del <b>Año Base</b>.
+                </div>
+                <footer>
+                    <button name="action_calculate"
+                            string="Calcular Coeficientes"
+                            type="object"
+                            class="btn-primary"/>
+                    <button string="Cerrar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_cm_coefficient_wizard" model="ir.actions.act_window">
+        <field name="name">Calcular Coeficientes CM</field>
+        <field name="res_model">cm.coefficient.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

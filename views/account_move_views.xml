@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- Herencia vista form de account.move para mostrar jurisdicción CM -->
+    <record id="account_move_form_cm" model="ir.ui.view">
+        <field name="name">account.move.form.cm</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <!-- Agregar campo jurisdicción CM en la zona de datos del partner -->
+            <xpath expr="//field[@name='invoice_date']" position="after">
+                <field name="cm_jurisdiction_id"
+                       invisible="move_type not in ('out_invoice', 'out_refund', 'in_invoice', 'in_refund')"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

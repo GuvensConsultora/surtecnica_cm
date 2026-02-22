@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="cm_cm05_wizard_form" model="ir.ui.view">
+        <field name="name">cm.cm05.wizard.form</field>
+        <field name="model">cm.cm05.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Exportar CM05 Excel">
+                <!-- Estado draft: selección de ejercicio -->
+                <group invisible="state != 'draft'">
+                    <group>
+                        <field name="fiscal_year"/>
+                    </group>
+                </group>
+
+                <!-- Estado done: archivo generado -->
+                <div invisible="state != 'done'">
+                    <group string="Archivo Generado">
+                        <field name="file_data" filename="file_name"/>
+                        <field name="file_name" invisible="1"/>
+                    </group>
+                </div>
+
+                <field name="state" invisible="1"/>
+
+                <footer>
+                    <button name="action_generate"
+                            string="Generar CM05"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <button name="action_download"
+                            string="Descargar ZIP"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state != 'done'"/>
+                    <button string="Cerrar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_cm_cm05_wizard" model="ir.actions.act_window">
+        <field name="name">Exportar CM05 Excel</field>
+        <field name="res_model">cm.cm05.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>
