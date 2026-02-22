@@ -13,6 +13,95 @@ El regimen de **Convenio Multilateral** (CM) exige:
 3. **Liquidar** el impuesto con la alicuota que fija cada provincia
 4. **Presentar** archivos digitales ante COMARB (CM03, CM05) y las jurisdicciones (SIRCAR, SIFERE)
 
+### Como funciona el Convenio Multilateral
+
+Cuando una empresa opera en **una sola provincia**, paga IIBB directamente ahi sobre el 100% de sus ingresos. Pero cuando opera en varias, entra al regimen de **Convenio Multilateral** para evitar pagar el 100% en cada una.
+
+**La mecanica es esta:**
+
+```
+ AÑO ANTERIOR (base para calcular coeficientes)
+ ================================================
+
+ La empresa mira cuanto facturo y cuanto gasto en cada provincia
+ durante el año anterior. Con esos numeros calcula un COEFICIENTE
+ UNIFICADO (CU) por jurisdiccion:
+
+   CU = (% ingresos de esa provincia × 50%) + (% gastos de esa provincia × 50%)
+
+ Ejemplo con 3 provincias:
+ ┌─────────────┬──────────┬─────────┬──────────┬─────────┬────────┐
+ │ Jurisdiccion│ Ingresos │ % Ing.  │ Gastos   │ % Gasto │   CU   │
+ ├─────────────┼──────────┼─────────┼──────────┼─────────┼────────┤
+ │ Cordoba     │ 3.500.000│ 35.00%  │ 2.800.000│ 35.00%  │ 0.3500 │
+ │ Santa Fe    │ 2.500.000│ 25.00%  │ 2.000.000│ 25.00%  │ 0.2500 │
+ │ Buenos Aires│ 4.000.000│ 40.00%  │ 3.200.000│ 40.00%  │ 0.4000 │
+ ├─────────────┼──────────┼─────────┼──────────┼─────────┼────────┤
+ │ TOTAL       │10.000.000│100.00%  │ 8.000.000│100.00%  │ 1.0000 │
+ └─────────────┴──────────┴─────────┴──────────┴─────────┴────────┘
+
+ La suma de todos los CU siempre da 1.0000 (el 100% se reparte).
+ Estos coeficientes se usan TODO el año siguiente.
+```
+
+```
+ CADA MES (liquidacion)
+ ================================================
+
+ 1. Se toma el TOTAL de ingresos gravados del mes
+    (todas las facturas de venta, sin importar a que provincia)
+
+    Ejemplo: base gravada total del mes = $1.000.000
+
+ 2. Se DISTRIBUYE esa base a cada jurisdiccion usando el CU:
+
+    Cordoba:     $1.000.000 × 0.3500 = $350.000
+    Santa Fe:    $1.000.000 × 0.2500 = $250.000
+    Buenos Aires:$1.000.000 × 0.4000 = $400.000
+
+ 3. Se aplica la ALICUOTA que fija cada provincia:
+
+    Cordoba:     $350.000 × 3.50% = $12.250
+    Santa Fe:    $250.000 × 3.60% =  $9.000
+    Buenos Aires:$400.000 × 4.00% = $16.000
+
+ 4. Se restan las DEDUCCIONES (lo que ya te cobraron):
+
+    - Retenciones sufridas: lo que tus clientes te retuvieron al pagarte
+    - Percepciones sufridas: lo que tus proveedores te cobraron de mas
+    - Recaudaciones bancarias: lo que el banco te debito (SIRCREB)
+    - Saldo anterior: saldo a favor del mes pasado
+
+ 5. El SALDO es lo que hay que pagar (o queda a favor):
+
+    ┌─────────────┬──────────┬─────────┬────────────┬─────────┐
+    │ Jurisdiccion│ Impuesto │ Deduc.  │ Saldo      │         │
+    ├─────────────┼──────────┼─────────┼────────────┼─────────┤
+    │ Cordoba     │ $12.250  │ $2.500  │ +$9.750    │ A pagar │
+    │ Santa Fe    │  $9.000  │ $9.500  │   -$500    │ A favor │
+    │ Buenos Aires│ $16.000  │ $4.000  │ +$12.000   │ A pagar │
+    └─────────────┴──────────┴─────────┴────────────┴─────────┘
+
+    El saldo a favor de Santa Fe (-$500) se arrastra al mes siguiente.
+```
+
+```
+ PRESENTACIONES
+ ================================================
+
+ Con la liquidacion hecha, la empresa presenta:
+
+ MENSUAL:
+   CM03 → DDJJ mensual ante COMARB (resumen de la liquidacion)
+   SIRCAR → percepciones que la empresa le cobro a terceros (informativo)
+   SIFERE → retenciones/percepciones que le cobraron a la empresa (para computar deducciones)
+
+ ANUAL:
+   CM05 → justificacion de como se calcularon los coeficientes del año
+```
+
+**En resumen:** la empresa no paga IIBB sobre el total en cada provincia; reparte la base proporcionalmente usando un coeficiente que refleja cuanto opera realmente en cada una.
+
 ### Que resuelve este modulo
 
 | Necesidad | Sin el modulo | Con el modulo |
@@ -35,7 +124,7 @@ El regimen de **Convenio Multilateral** (CM) exige:
  CONFIGURACION INICIAL (una vez al año)
  ========================================
  1. Verificar jurisdicciones         → vienen cargadas
- 2. Cargar actividades CUACM         → una por jurisdiccion donde operas
+ 2. Cargar actividades NAES          → una por jurisdiccion donde operas
  3. Calcular coeficientes            → wizard automatico o carga manual
  4. Definir sede de la empresa       → en configuracion de la compañia
 
@@ -262,27 +351,35 @@ Seleccionar la jurisdiccion donde la empresa tiene su sede principal. Se informa
 
 ---
 
-### 3.3 Actividades CUACM
+### 3.3 Nomenclador NAES (viene pre-cargado)
 
-**Menu:** Contabilidad > Configuracion > Convenio Multilateral > Actividades CUACM
+**Menu:** Contabilidad > Configuracion > Convenio Multilateral > Nomenclador NAES
 
-Cargar una linea por cada jurisdiccion donde la empresa tiene actividad:
+El modulo incluye las 1030 actividades del nomenclador NAES (Nomenclador de Actividades Economicas del Sistema Federal) pre-cargadas. Es la tabla de referencia oficial de COMARB que reemplaza al viejo CUACM desde 2018.
 
-| Jurisdiccion | Cod. CUACM | Descripcion | Alicuota % | Regimen |
-|---|---|---|---|---|
-| [904] Cordoba | 519000 | Vta. mayor art. electricos | 3.50 | Art. 2 - General |
-| [921] Santa Fe | 519000 | Vta. mayor art. electricos | 3.60 | Art. 2 - General |
-| [902] Buenos Aires | 519000 | Vta. mayor art. electricos | 4.00 | Art. 2 - General |
+No requiere configuracion. Se usa como lookup al cargar actividades.
+
+### 3.4 Actividades NAES
+
+**Menu:** Contabilidad > Configuracion > Convenio Multilateral > Actividades NAES
+
+Cargar una linea por cada jurisdiccion donde la empresa tiene actividad. La actividad se selecciona de un dropdown con busqueda por codigo o descripcion:
+
+| Jurisdiccion | Actividad NAES | Alicuota % | Regimen |
+|---|---|---|---|
+| [904] Cordoba | [519000] Vta. mayor art. electricos | 3.50 | Art. 2 - General |
+| [921] Santa Fe | [519000] Vta. mayor art. electricos | 3.60 | Art. 2 - General |
+| [902] Buenos Aires | [519000] Vta. mayor art. electricos | 4.00 | Art. 2 - General |
 
 **Donde conseguir los datos:**
-- **Codigo CUACM:** nomenclador COMARB en [siti.comarb.gob.ar](https://siti.comarb.gob.ar)
+- **Actividad NAES:** ya esta pre-cargada, buscar por codigo o descripcion en el dropdown
 - **Alicuota:** pagina de rentas de cada provincia
 - **Regimen:** Art. 2 (General) para la mayoria. Otros articulos para construccion, seguros, bancos, transporte, etc.
 - **Vigencia (opcional):** si cambia la alicuota, poner fecha desde/hasta para tener historial
 
 ---
 
-### 3.4 Coeficientes unificados
+### 3.5 Coeficientes unificados
 
 Hay dos formas de cargarlos:
 
@@ -324,7 +421,8 @@ Crear una linea por jurisdiccion. Al ingresar los montos, el coeficiente se calc
 surtecnica_cm/
 ├── models/
 │   ├── cm_jurisdiction.py        # 24 jurisdicciones COMARB (901-924)
-│   ├── cm_activity.py            # Actividad CUACM + alicuota por jurisdiccion
+│   ├── cm_naes.py                # Nomenclador NAES (1030 actividades pre-cargadas)
+│   ├── cm_activity.py            # Actividad NAES + alicuota por jurisdiccion
 │   ├── cm_coefficient.py         # Coeficiente unificado por ejercicio
 │   ├── cm_liquidation.py         # Liquidacion mensual + lineas
 │   ├── res_company.py            # Herencia: sede CM en la empresa
@@ -352,8 +450,11 @@ res.company ──────────────┐
                cm.jurisdiction (901-924)
                     ▲           ▲
                     │           │
+cm.naes ──────────┐
+(1030 actividades) │
+                   ▼
               cm.activity    cm.coefficient
-              (CUACM+alic)   (CU por año)
+              (NAES+alic)    (CU por año)
                     ▲           ▲
                     │           │
               cm.liquidation.line
@@ -377,19 +478,28 @@ account.move ──→ cm.jurisdiction (computed desde partner.state_id)
 
 `name_get()` devuelve `[CODE] Nombre`.
 
+#### `cm.naes`
+
+| Campo | Tipo | Descripcion |
+|---|---|---|
+| `code` | Char(6), unique, indexed | Codigo NAES |
+| `name` | Char, required | Descripcion de la actividad |
+| `active` | Boolean | Archivado logico |
+
+1030 registros pre-cargados (noupdate=1). `name_get()` devuelve `[CODE] Descripcion`.
+
 #### `cm.activity`
 
 | Campo | Tipo | Descripcion |
 |---|---|---|
 | `company_id` | Many2one `res.company` | Empresa |
 | `jurisdiction_id` | Many2one `cm.jurisdiction` | Jurisdiccion (restrict) |
-| `cuacm_code` | Char(10) | Codigo nomenclador COMARB |
-| `name` | Char | Descripcion de la actividad |
+| `naes_id` | Many2one `cm.naes` | Actividad NAES (restrict) |
 | `alicuota` | Float(6,4) | Tasa IIBB % |
 | `art_regimen` | Selection | Art. 2 a 13 del CM |
 | `date_from` / `date_to` | Date | Vigencia |
 
-Unique: `(company_id, jurisdiction_id, cuacm_code)`.
+Unique: `(company_id, jurisdiction_id, naes_id)`.
 
 #### `cm.coefficient`
 
