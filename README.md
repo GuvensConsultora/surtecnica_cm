@@ -320,6 +320,220 @@ Pero aca viene la parte clave: **las provincias no esperan a que la empresa liqu
 
 **En resumen:** la empresa no paga IIBB sobre el total en cada provincia; reparte la base proporcionalmente usando un coeficiente que refleja cuanto opera realmente en cada una. Las provincias cobran adelantos por 3 vias (percepciones, retenciones, SIRCREB) y el CM cierra la cuenta descontando esos adelantos del impuesto que corresponde a cada jurisdiccion.
 
+### Padrones provinciales: ARBA, AGIP, DGR y las alicuotas que cambian
+
+Cada provincia tiene su propio organismo de rentas y sus propias reglas para percepciones y retenciones. La empresa de Mendoza que vende a Buenos Aires, CABA y Cordoba tiene que lidiar con todos ellos.
+
+```
+ LOS ORGANISMOS DE RENTAS PROVINCIALES
+ ==================================================================
+
+ Cada provincia tiene un organismo que administra IIBB:
+
+ ┌──────────────────┬────────────┬────────────────────────────────┐
+ │ Provincia        │ Organismo  │ Nombre completo                │
+ ├──────────────────┼────────────┼────────────────────────────────┤
+ │ Buenos Aires     │ ARBA       │ Agencia de Recaudacion de      │
+ │                  │            │ Buenos Aires                   │
+ │ CABA             │ AGIP       │ Administracion Gubernamental   │
+ │                  │            │ de Ingresos Publicos           │
+ │ Cordoba          │ DGR        │ Direccion General de Rentas    │
+ │ Mendoza          │ ATM        │ Administracion Tributaria      │
+ │                  │            │ Mendoza                        │
+ │ Santa Fe         │ API        │ Administracion Provincial de   │
+ │                  │            │ Impuestos                      │
+ │ Tucuman          │ DGR        │ Direccion General de Rentas    │
+ │ (otras)          │ DGR/DPR    │ Cada provincia tiene el suyo   │
+ └──────────────────┴────────────┴────────────────────────────────┘
+
+ Cada organismo fija SUS PROPIAS reglas:
+   - Que alicuota de percepcion/retencion aplica a cada contribuyente
+   - Cada cuanto se actualizan las alicuotas
+   - En que formato hay que informar
+   - Que contribuyentes estan obligados a actuar como agentes
+```
+
+```
+ ¿QUE ES UN PADRON?
+ ==================================================================
+
+ Un padron es un archivo que publica cada provincia con la lista de
+ contribuyentes y la alicuota que le corresponde a cada uno.
+
+ Cuando ARBA publica su padron, basicamente dice:
+
+   "Si le vendes a CUIT 20-12345678-9, cobrale 3.00% de percepcion.
+    Si le vendes a CUIT 30-98765432-1, cobrale 1.50%.
+    Si le vendes a CUIT 27-11111111-1, no le cobres nada (0.00%)."
+
+ Cada CUIT tiene su propia alicuota, que ARBA calcula segun el
+ comportamiento fiscal del contribuyente (si pago en termino, si tiene
+ deuda, si presento las DDJJ, etc.).
+
+ ┌─────────────────┬─────────────────────────┬───────────────────────┐
+ │ Provincia       │ Nombre del padron       │ Frecuencia de cambio  │
+ ├─────────────────┼─────────────────────────┼───────────────────────┤
+ │ Buenos Aires    │ Padron ARBA (IIBB)      │ Cada 2 meses (bim.)  │
+ │ CABA            │ Padron AGIP             │ Cada 6 meses (sem.)  │
+ │ Cordoba         │ Padron DGR Cordoba      │ Mensual               │
+ │ Mendoza         │ Padron ATM              │ Variable              │
+ │ Santa Fe        │ Padron API              │ Mensual               │
+ └─────────────────┴─────────────────────────┴───────────────────────┘
+
+ IMPORTANTE: las alicuotas cambian periodicamente. Un cliente al que
+ hoy le percibis 3.00% puede pasar a 1.50% el proximo bimestre.
+ La empresa tiene la obligacion de descargar el padron actualizado
+ y aplicar las alicuotas vigentes.
+```
+
+```
+ LOS DOS ROLES DE LA EMPRESA
+ ==================================================================
+
+ La empresa de Mendoza tiene DOS roles al mismo tiempo:
+
+
+ ROL 1: AGENTE DE PERCEPCION/RETENCION (cobra impuesto de terceros)
+ ───────────────────────────────────────────────────────────────────
+ Si la provincia designa a la empresa como "agente", la empresa esta
+ OBLIGADA a cobrarles IIBB a sus clientes e ingresarlo a la provincia.
+
+ Ejemplo: ARBA designa a la empresa como agente de percepcion
+ de Buenos Aires. Cuando la empresa le factura a un cliente de
+ Buenos Aires, tiene que:
+
+   1. Consultar el padron de ARBA para ver que alicuota le corresponde
+      a ese cliente (ej: 3.00%)
+   2. Agregar una linea de percepcion IIBB en la factura
+   3. Cobrarle ese monto al cliente junto con la factura
+   4. Depositarlo en ARBA a fin de mes
+   5. Informarlo en SIRCAR
+
+ ┌──────────────────────────────────────────────────────────────────┐
+ │ Factura de venta a cliente de Buenos Aires                      │
+ ├──────────────────────────────────────────────────────────────────┤
+ │ Subtotal:                          $100.000                     │
+ │ IVA 21%:                            $21.000                     │
+ │ Percepcion IIBB Bs.As. (3.00%):     $3.000  ← la empresa cobra │
+ │                                              por orden de ARBA  │
+ │ TOTAL:                             $124.000                     │
+ └──────────────────────────────────────────────────────────────────┘
+
+ Esos $3.000 NO son ingreso de la empresa. Son plata de ARBA
+ que la empresa recauda por obligacion. Se informa en SIRCAR.
+
+
+ ROL 2: SUJETO PERCIBIDO/RETENIDO (le cobran impuesto a ella)
+ ─────────────────────────────────────────────────────────────
+ Cuando la empresa compra a un proveedor que es agente de percepcion,
+ o cuando un cliente que es agente de retencion le paga, la empresa
+ SUFRE esas percepciones/retenciones.
+
+ Ejemplo: la empresa compra mercaderia a un proveedor de Cordoba
+ que es agente de percepcion de DGR Cordoba:
+
+ ┌──────────────────────────────────────────────────────────────────┐
+ │ Factura de compra de proveedor de Cordoba                       │
+ ├──────────────────────────────────────────────────────────────────┤
+ │ Subtotal:                          $100.000                     │
+ │ IVA 21%:                            $21.000                     │
+ │ Percepcion IIBB Cordoba (2.50%):     $2.500  ← el proveedor    │
+ │                                              cobra por orden    │
+ │                                              de DGR Cordoba     │
+ │ TOTAL:                             $123.500                     │
+ └──────────────────────────────────────────────────────────────────┘
+
+ Esos $2.500 son plata que la empresa YA PAGO a Cordoba de
+ forma anticipada. Se descuentan en la liquidacion CM como
+ "percepciones sufridas" en la jurisdiccion Cordoba.
+ Se informan en SIFERE.
+```
+
+```
+ COMO ENCAJA TODO JUNTO (ejemplo mes de enero)
+ ==================================================================
+
+ La empresa de Mendoza durante enero:
+
+ 1. VENDIO a clientes de 3 provincias y les PERCIBIO IIBB:
+    (porque ARBA, DGR y ATM la designaron agente de percepcion)
+
+    Buenos Aires: percibio $8.000 de sus clientes → deposita en ARBA
+    Cordoba:      percibio $4.000 de sus clientes → deposita en DGR
+    Mendoza:      percibio $5.000 de sus clientes → deposita en ATM
+
+    Todo esto se informa en SIRCAR.
+
+ 2. COMPRO a proveedores que le PERCIBIERON IIBB:
+    (porque esos proveedores son agentes de sus respectivas provincias)
+
+    Un proveedor de Bs.As. le percibio:  $2.000 a favor de ARBA
+    Un proveedor de Cordoba le percibio: $1.500 a favor de DGR
+    Un proveedor de Mendoza le percibio: $3.000 a favor de ATM
+
+ 3. COBRO facturas y sus clientes le RETUVIERON IIBB:
+
+    Un cliente de Bs.As. le retuvo:      $1.500 a favor de ARBA
+    Un cliente de Mendoza le retuvo:     $2.000 a favor de ATM
+
+ 4. El banco le DEBITO SIRCREB:
+
+    Buenos Aires: $500
+    Cordoba:      $300
+    Mendoza:      $1.200
+
+ 5. En la LIQUIDACION CM se cierra la cuenta por jurisdiccion:
+
+    ┌─────────────┬──────────┬─────────┬────────┬─────────┬─────────┐
+    │ Jurisdiccion│ Impuesto │ Perc.   │ Ret.   │ SIRCREB │ Saldo   │
+    │             │ CM       │sufridas │sufridas│         │         │
+    ├─────────────┼──────────┼─────────┼────────┼─────────┼─────────┤
+    │ Mendoza     │ $12.000  │ $3.000  │ $2.000 │ $1.200  │ +$5.800 │
+    │ Buenos Aires│ $14.000  │ $2.000  │ $1.500 │   $500  │+$10.000 │
+    │ Cordoba     │  $8.750  │ $1.500  │   $0   │   $300  │ +$6.950 │
+    └─────────────┴──────────┴─────────┴────────┴─────────┴─────────┘
+
+    La empresa paga el saldo a cada provincia por separado:
+      → $5.800 a ATM (Mendoza)
+      → $10.000 a ARBA (Buenos Aires)
+      → $6.950 a DGR (Cordoba)
+
+ RESUMEN DEL FLUJO DE PLATA:
+ ┌─────────────────────────────────────────────────────────────────┐
+ │ Lo que la empresa COBRO de terceros  →  lo deposita en SIRCAR  │
+ │ (percepciones/retenciones practicadas)  (no es plata suya)     │
+ │                                                                 │
+ │ Lo que a la empresa LE COBRARON     →  lo deduce en la liquid. │
+ │ (percepciones/retenciones sufridas)    CM y lo informa en      │
+ │ (SIRCREB)                              SIFERE                  │
+ │                                                                 │
+ │ La diferencia                       →  la paga a cada provincia│
+ │ (saldo CM)                             por VEP/transferencia   │
+ └─────────────────────────────────────────────────────────────────┘
+```
+
+```
+ ¿DE DONDE SALEN LAS ALICUOTAS EN ODOO?
+ ==================================================================
+
+ En Odoo, las alicuotas de percepcion/retencion se configuran en los
+ impuestos (account.tax). Hay dos formas de mantenerlas actualizadas:
+
+ 1. MANUAL: el contador descarga el padron de cada provincia, busca
+    los CUITs de sus clientes/proveedores, y actualiza las alicuotas
+    en Odoo cuando cambian. Funciona para pocas operaciones.
+
+ 2. AUTOMATICA: modulos de localizacion argentina (como
+    l10n_ar_withholding) permiten importar los padrones y aplicar
+    las alicuotas automaticamente segun el CUIT del cliente/proveedor.
+    Recomendado cuando hay muchas operaciones.
+
+ El modulo surtecnica_cm NO gestiona las alicuotas de percepcion/
+ retencion (eso lo hace la localizacion argentina). Lo que SI hace
+ es tomar las percepciones y retenciones ya registradas en Odoo y
+ exportarlas en los formatos que piden SIRCAR y SIFERE.
+```
+
 ### Que resuelve este modulo
 
 | Necesidad | Sin el modulo | Con el modulo |
