@@ -534,6 +534,232 @@ Cada provincia tiene su propio organismo de rentas y sus propias reglas para per
  exportarlas en los formatos que piden SIRCAR y SIFERE.
 ```
 
+### Modulo de retenciones/percepciones en Odoo 19 (withholding)
+
+Las percepciones y retenciones que se mencionaron arriba no las maneja `surtecnica_cm`. Las maneja un conjunto de modulos de la comunidad argentina (`a2systems/odoo-argentina`):
+
+```
+ ARQUITECTURA DE MODULOS
+ ==================================================================
+
+ account_payment_group          ← Agrupa pagos (base)
+   └── account_withholding_automatic  ← Calcula retenciones automaticas
+        └── l10n_ar_account_withholding        ← Argentinizacion (Ganancias, IIBB)
+             └── l10n_ar_account_withholding_automatic  ← Padrones ARBA/AGIP
+```
+
+```
+ ¿QUE HACE CADA UNO?
+ ==================================================================
+
+ account_payment_group
+ ─────────────────────
+ Agrega el concepto de "Orden de Pago" (account.payment.group):
+ en vez de pagar factura por factura, agrupa varias facturas de un
+ proveedor en un solo pago. El grupo contiene N lineas de pago
+ (account.payment) que pueden ser transferencias, cheques, etc.
+
+ Flujo: draft → confirmed → posted
+   - En draft: se seleccionan facturas a pagar
+   - En confirmed: se agregan los medios de pago
+   - En posted: se generan asientos y se concilia todo
+
+
+ account_withholding_automatic
+ ─────────────────────────────
+ Extiende el payment group con un boton "Calcular Retenciones".
+ Para cada impuesto con tipo retencion != 'none':
+
+   1. Calcula la base imponible (neto o bruto segun config)
+   2. Acumula pagos previos del periodo (mes/año)
+   3. Aplica minimo no imponible
+   4. Calcula la retencion segun el tipo:
+      - based_on_rule: porcentaje + monto fijo segun reglas
+      - code: ejecuta codigo Python custom
+      - partner_tax: lee alicuota del partner
+      - tabla_ganancias: escala progresiva AFIP
+   5. Resta retenciones ya practicadas en el periodo
+   6. Crea un account.payment automatico con el monto
+
+
+ l10n_ar_account_withholding
+ ───────────────────────────
+ Agrega la logica argentina:
+
+ IMPUESTO A LAS GANANCIAS:
+   - Busca condicion del partner: AC (inscripto), NI (no inscripto),
+     EX (exento), NC (no categorizado)
+   - Si AC: busca regimen (ej: Regimen 21 - Intereses, porcentaje 6%)
+     Si porcentaje = -1: usa tabla de escalas (fijo + % sobre excedente)
+   - Si NI: aplica alicuota no inscripto (ej: 28%)
+   - Si EX/NC: no retiene
+
+ IIBB PROVINCIAL:
+   - Agrega amount_type = 'partner_tax' en account.tax
+   - Lee la alicuota desde el partner (res.partner.perception_ids)
+   - La alicuota se busca por impuesto + vigencia de fechas
+
+
+ l10n_ar_account_withholding_automatic
+ ─────────────────────────────────────
+ Agrega integracion con padrones provinciales:
+
+ ARBA:
+   - Consulta WebService de ARBA con CUIT del partner
+   - Obtiene alicuota_percepcion y alicuota_retencion
+   - Cachea en res.partner.arba_alicuot (por periodo/empresa)
+   - Configuracion: CUIT agente + certificado en res.company
+
+ AGIP:
+   - Campos para alicuota no inscripto (percepcion y retencion)
+   - Tipo de padron (regimenes generales)
+```
+
+```
+ EJEMPLO: PAGO A PROVEEDOR CON RETENCIONES
+ ==================================================================
+
+ Factura proveedor: $100.000 + IVA 21% = $121.000
+ El proveedor esta inscripto en Ganancias (regimen 21, 6%)
+ y tiene alicuota IIBB Mendoza del 3%
+
+ 1. CREAR ORDEN DE PAGO
+    ├── Seleccionar proveedor
+    ├── Seleccionar la factura ($121.000)
+    └── selected_debt = $121.000
+
+ 2. CLICK "CALCULAR RETENCIONES"
+    El sistema busca todos los impuestos con retencion activa:
+
+    Retencion Ganancias:
+      Base = $100.000 (neto, amount_untaxed)
+      Regimen 21, porcentaje inscripto = 6%
+      Monto no sujeto a retencion = $7.870
+      Base imponible = $100.000 - $7.870 = $92.130
+      Retencion = $92.130 × 6% = $5.527,80
+
+    Retencion IIBB Mendoza:
+      Base = $100.000 (neto)
+      Alicuota del partner = 3%
+      Retencion = $100.000 × 3% = $3.000
+
+ 3. EL PAYMENT GROUP QUEDA CON 3 PAGOS:
+    ┌─────────────────────────────────┬────────────┐
+    │ Concepto                        │ Monto      │
+    ├─────────────────────────────────┼────────────┤
+    │ Transferencia banco             │ $112.472,20│
+    │ Ret. Ganancias (automatica)     │   $5.527,80│
+    │ Ret. IIBB Mendoza (automatica)  │   $3.000,00│
+    ├─────────────────────────────────┼────────────┤
+    │ TOTAL                           │ $121.000,00│
+    └─────────────────────────────────┴────────────┘
+
+ 4. AL CONFIRMAR:
+    - Se postean los 3 pagos (3 asientos contables)
+    - Se concilian contra la factura
+    - La factura queda en estado "paid"
+    - El proveedor recibio $112.472,20
+    - Las retenciones quedan en cuentas contables separadas
+      para depositar a AFIP y ATM respectivamente
+```
+
+```
+ ACUMULACION EN EL PERIODO
+ ==================================================================
+
+ Si en el mismo mes se le pagan 3 facturas al mismo proveedor:
+
+   Pago 1 (5/ene): base $50.000 → ret. Ganancias $2.527,80
+   Pago 2 (15/ene): base $30.000 → acumulado $80.000
+     → periodo = $80.000 - $7.870 = $72.130 × 6% = $4.327,80
+     → ya retenido = $2.527,80
+     → retencion pago 2 = $4.327,80 - $2.527,80 = $1.800,00
+   Pago 3 (25/ene): base $20.000 → acumulado $100.000
+     → periodo = $100.000 - $7.870 = $92.130 × 6% = $5.527,80
+     → ya retenido = $4.327,80
+     → retencion pago 3 = $5.527,80 - $4.327,80 = $1.200,00
+
+ El sistema acumula automaticamente los pagos del mes para que
+ la retencion total del periodo sea correcta, sin importar en
+ cuantas cuotas se pague.
+```
+
+```
+ MEJORAS PENDIENTES DEL MODULO WITHHOLDING
+ ==================================================================
+
+ 1. PADRONES PROVINCIALES LIMITADOS
+    Solo tiene integracion con ARBA (Buenos Aires).
+    Falta:
+    ├── AGIP (CABA) → tiene WebService pero no esta implementado
+    ├── ATM (Mendoza) → requiere carga manual de padron CSV
+    ├── API (Santa Fe) → idem
+    ├── DGR (Cordoba) → idem
+    └── Resto de provincias
+    Mejora: wizard de importacion de padrones CSV/TXT generico
+    que actualice las alicuotas en res.partner automaticamente.
+
+ 2. NO HAY CERTIFICADOS DE RETENCION
+    Cuando la empresa retiene, debe entregar un certificado al
+    proveedor. El reporte existe pero esta comentado en el codigo.
+    Mejora: implementar PDF con datos del agente, sujeto retenido,
+    nro certificado, fecha, monto, regimen.
+
+ 3. NO HAY EXPORTACION MASIVA
+    Las retenciones practicadas deben informarse a:
+    ├── SICORE (retenciones Ganancias/IVA → AFIP)
+    ├── SIFERE (informar retenciones sufridas → COMARB)
+    └── Archivo de cada provincia (ARBA, ATM, etc.)
+    Mejora: wizards de exportacion (surtecnica_cm ya resuelve
+    SIRCAR/SIFERE para Convenio Multilateral).
+
+ 4. NO HAY REVERSION AUTOMATICA DE RETENCIONES
+    Si se cancela un payment group, se desconcilia pero no se
+    genera un asiento de reversion de la retencion.
+    Mejora: al cancelar, generar asiento inverso automaticamente.
+
+ 5. RECALCULO RETROACTIVO
+    Si se modifica un pago anterior del mes, las retenciones
+    acumuladas de pagos posteriores quedan inconsistentes.
+    Mejora: metodo de recalculo masivo por periodo.
+
+ 6. MULTIMONEDA
+    Todo se calcula en moneda de la empresa. No hay soporte para
+    pagos en USD u otra moneda extranjera.
+
+ 7. VALIDACION DE CONDICION FISCAL
+    El campo imp_ganancias_padron (AC/NI/EX/NC) se carga manual.
+    Mejora: consulta automatica a AFIP para determinar la condicion
+    fiscal del partner.
+```
+
+```
+ RELACION CON SURTECNICA_CM
+ ==================================================================
+
+ surtecnica_cm CONSUME datos del modulo withholding:
+
+ ┌───────────────────────────┐     ┌───────────────────────────┐
+ │ l10n_ar_withholding       │     │ surtecnica_cm             │
+ ├───────────────────────────┤     ├───────────────────────────┤
+ │ Calcula retenciones       │────→│ Toma las tax lines con    │
+ │ y percepciones en pagos   │     │ codigo IIBB ('07') y las  │
+ │ y facturas                │     │ exporta en formato SIRCAR │
+ │                           │     │ y SIFERE                  │
+ │ Registra en account.move  │     │                           │
+ │ y account.payment         │────→│ Las deducciones de la     │
+ │                           │     │ liquidacion CM vienen de  │
+ │                           │     │ ahi (percepciones/ret.    │
+ │                           │     │ sufridas por jurisdiccion)│
+ └───────────────────────────┘     └───────────────────────────┘
+
+ En resumen:
+   withholding → calcula y registra las percepciones/retenciones
+   surtecnica_cm → las lee, las agrupa por jurisdiccion, y las
+                   exporta en los formatos que piden COMARB y
+                   las provincias
+```
+
 ### Que resuelve este modulo
 
 | Necesidad | Sin el modulo | Con el modulo |
