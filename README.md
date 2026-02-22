@@ -2,6 +2,23 @@
 
 ## 1. Introduccion
 
+### Glosario: organismos y sistemas involucrados
+
+Antes de arrancar, conviene saber que es cada cosa:
+
+| Sigla | Nombre completo | Que es | Que hace |
+|---|---|---|---|
+| **IIBB** | Impuesto sobre los Ingresos Brutos | Impuesto provincial | Cada provincia cobra un % sobre los ingresos de las empresas que operan en su territorio |
+| **CM** | Convenio Multilateral | Acuerdo entre provincias | Regula como se reparte la base imponible cuando una empresa opera en mas de una provincia, para que no pague el 100% en cada una |
+| **COMARB** | Comision Arbitral del Convenio Multilateral | Organismo inter-provincial | Administra el CM. Recibe las declaraciones juradas (CM03, CM05), publica el nomenclador NAES, y arbitra conflictos entre provincias |
+| **SIRCAR** | Sistema de Recaudacion y Control de Agentes de Recaudacion | Sistema web de COMARB | Ahi se informan las percepciones y retenciones que la empresa **practico a terceros** (es decir, las que vos le cobraste a tus clientes por orden de la provincia) |
+| **SIFERE** | Sistema Federal de Recaudacion | Sistema web de COMARB | Ahi se informan las percepciones y retenciones que la empresa **sufrio** (es decir, las que te cobraron a vos). Sirve para justificar las deducciones en la liquidacion CM |
+| **SIRCREB** | Sistema de Recaudacion y Control de Acreditaciones Bancarias | Sistema bancario | Los bancos debitan automaticamente IIBB sobre los depositos/acreditaciones en cuenta. Cada provincia fija su alicuota via padron |
+| **NAES** | Nomenclador de Actividades Economicas del Sistema Federal | Tabla de codigos | Catalogo de ~1030 actividades economicas que usa COMARB para clasificar que hace cada empresa. Reemplazo al viejo CUACM en 2018 |
+| **ATM** | Administracion Tributaria Mendoza | Organismo provincial | Ejemplo de organismo de rentas provincial. Cada provincia tiene el suyo (ARBA en Buenos Aires, API en Santa Fe, DGR en Cordoba, etc.) |
+| **CM03** | Declaracion Jurada CM formulario 03 | Archivo XML | DDJJ mensual que se presenta ante COMARB con el detalle de la liquidacion por jurisdiccion |
+| **CM05** | Declaracion Jurada CM formulario 05 | Archivo Excel | Presentacion anual ante COMARB con la determinacion de los coeficientes unificados |
+
 ### El problema
 
 Una empresa que vende desde Buenos Aires a clientes en Cordoba, Santa Fe y Mendoza tiene que pagar IIBB en **cada provincia** donde genera ingresos. Odoo no sabe esto: solo maneja un impuesto plano, sin distribuir la base entre jurisdicciones.
