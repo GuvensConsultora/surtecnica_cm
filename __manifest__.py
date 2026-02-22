@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Convenio Multilateral IIBB',
-    'version': '19.0.1.0.0',
+    'version': '1.0.0',
     'category': 'Accounting',
     'summary': 'Liquidación IIBB Convenio Multilateral con exportaciones SIRCAR/SIFERE/CM03/CM05',
     'description': """
