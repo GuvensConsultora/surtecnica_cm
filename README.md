@@ -40,13 +40,63 @@ Cuando una empresa opera en **una sola provincia**, paga IIBB directamente ahi s
  AÑO ANTERIOR (base para calcular coeficientes)
  ================================================
 
- La empresa mira cuanto facturo y cuanto gasto en cada provincia
- durante el año anterior. Con esos numeros calcula un COEFICIENTE
- UNIFICADO (CU) por jurisdiccion:
+ El coeficiente se calcula con dos datos del año anterior:
+ INGRESOS y GASTOS por jurisdiccion.
+
+
+ ¿QUE SON LOS INGRESOS?
+ ───────────────────────
+ Son las facturas de venta, asignadas a la jurisdiccion del CLIENTE.
+ Si le vendiste a un cliente de Cordoba, ese ingreso se computa en Cordoba.
+
+ Ejemplo (año 2025):
+   Ventas a clientes de Cordoba:       $3.500.000
+   Ventas a clientes de Santa Fe:      $2.500.000
+   Ventas a clientes de Buenos Aires:  $4.000.000
+   TOTAL PAIS:                        $10.000.000
+
+
+ ¿QUE SON LOS GASTOS?
+ ─────────────────────
+ Son las facturas de compra, asignadas a la jurisdiccion del PROVEEDOR.
+ Si le compraste a un proveedor de Cordoba, ese gasto se computa en Cordoba.
+
+ Incluye todo lo que la empresa pago para operar en cada provincia:
+   - Compras de mercaderia a proveedores de esa provincia
+   - Alquileres de oficinas, depositos, locales en esa provincia
+   - Servicios (luz, gas, internet, telefono) de esa provincia
+   - Honorarios profesionales de esa provincia
+   - Sueldos del personal que trabaja en esa provincia
+   - Fletes, logistica, mantenimiento en esa provincia
+   - Cualquier factura de compra de un proveedor de esa provincia
+
+ Ejemplo (año 2025):
+   Compras a proveedores de Cordoba:       $2.800.000
+   Compras a proveedores de Santa Fe:      $2.000.000
+   Compras a proveedores de Buenos Aires:  $3.200.000
+   TOTAL PAIS:                             $8.000.000
+
+
+ ¿POR QUE SE USAN LOS DOS?
+ ──────────────────────────
+ Porque el coeficiente busca reflejar CUANTO opera realmente la empresa
+ en cada provincia. Si solo se miraran los ingresos, una empresa que
+ vende mucho a Cordoba pero no tiene ninguna oficina ni proveedor ahi
+ tendria un coeficiente alto. Combinando ingresos Y gastos se mide
+ mejor la presencia real:
+
+   - Si vendes mucho a Cordoba Y compras mucho ahi → coeficiente alto
+   - Si vendes mucho a Cordoba pero no gastas nada ahi → coeficiente medio
+   - Si no vendes ni gastas en Cordoba → coeficiente cero
+
+
+ EL CALCULO
+ ──────────
+ Se promedia 50% ingresos + 50% gastos:
 
    CU = (% ingresos de esa provincia × 50%) + (% gastos de esa provincia × 50%)
 
- Ejemplo con 3 provincias:
+ Ejemplo completo:
  ┌─────────────┬──────────┬─────────┬──────────┬─────────┬────────┐
  │ Jurisdiccion│ Ingresos │ % Ing.  │ Gastos   │ % Gasto │   CU   │
  ├─────────────┼──────────┼─────────┼──────────┼─────────┼────────┤
@@ -57,8 +107,20 @@ Cuando una empresa opera en **una sola provincia**, paga IIBB directamente ahi s
  │ TOTAL       │10.000.000│100.00%  │ 8.000.000│100.00%  │ 1.0000 │
  └─────────────┴──────────┴─────────┴──────────┴─────────┴────────┘
 
+ Cordoba: (35.00% × 50%) + (35.00% × 50%) = 17.50% + 17.50% = 0.3500
+ Santa Fe: (25.00% × 50%) + (25.00% × 50%) = 12.50% + 12.50% = 0.2500
+
  La suma de todos los CU siempre da 1.0000 (el 100% se reparte).
- Estos coeficientes se usan TODO el año siguiente.
+ Estos coeficientes se usan TODO el año siguiente (2026).
+
+
+ NOTA IMPORTANTE
+ ───────────────
+ En Odoo, los "ingresos" se toman de las facturas de venta (out_invoice,
+ out_refund) y los "gastos" de las facturas de compra (in_invoice,
+ in_refund). La jurisdiccion se asigna por la provincia del cliente
+ o proveedor. Por eso es fundamental que cada contacto tenga la
+ provincia cargada en su direccion.
 ```
 
 ```
