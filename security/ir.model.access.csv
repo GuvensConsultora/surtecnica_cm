@@ -17,3 +17,4 @@ access_cm_sircar_wizard,cm.sircar.wizard,model_cm_sircar_wizard,group_cm_user,1,
 access_cm_sifere_wizard,cm.sifere.wizard,model_cm_sifere_wizard,group_cm_user,1,1,1,1
 access_cm_cm03_wizard,cm.cm03.wizard,model_cm_cm03_wizard,group_cm_user,1,1,1,1
 access_cm_cm05_wizard,cm.cm05.wizard,model_cm_cm05_wizard,group_cm_user,1,1,1,1
+access_cm_confirm_wizard,cm.confirm.wizard,model_cm_confirm_wizard,group_cm_manager,1,1,1,1

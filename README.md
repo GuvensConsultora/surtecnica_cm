@@ -836,15 +836,24 @@ Click en **Generar Liquidacion** y el sistema:
 2. Suma las bases imponibles por jurisdiccion
 3. Aplica el coeficiente de cada jurisdiccion
 4. Multiplica la base distribuida por la alicuota
-5. Crea la liquidacion en estado **"Calculada"**
+5. **Auto-carga deducciones** desde datos contables:
+   - **Percepciones sufridas:** busca tax lines IIBB ('07') en facturas de compra del periodo, agrupadas por jurisdiccion
+   - **Retenciones sufridas:** busca retenciones IIBB en cobros inbound del periodo, resolviendo jurisdiccion desde la provincia del cliente
+   - **Saldo anterior:** si el periodo anterior tiene saldo negativo (a favor), lo arrastra como deduccion
+6. Incluye jurisdicciones que tienen deducciones aunque no tengan ventas en el periodo
+7. Crea la liquidacion en estado **"Calculada"**
+
+> Las deducciones pre-cargadas quedan **editables** — el contador puede corregir cualquier valor. Solo `recaudaciones_bancarias` queda manual (dato bancario, no esta en Odoo).
 
 ---
 
-### Paso 7: Revisar y cargar deducciones
+### Paso 7: Revisar deducciones y trazabilidad
 
 **Menu:** Contabilidad > Contabilidad > Liquidacion CM
 
-Se abre la liquidacion generada. Tiene una linea por cada jurisdiccion donde hubo ventas:
+> **Vista kanban:** al abrir el menu, se ve un tablero kanban agrupado por estado (Borrador / Calculada / Confirmada) con resumen monetario de cada liquidacion. Tambien se puede cambiar a vista lista.
+
+Se abre la liquidacion generada. Tiene una linea por cada jurisdiccion donde hubo ventas o deducciones:
 
 ```
  LIQUIDACION CM 2026/01 - Mi Empresa SA
@@ -869,14 +878,24 @@ Se abre la liquidacion generada. Tiene una linea por cada jurisdiccion donde hub
            = 12.000
 ```
 
-**Deducciones:** el usuario carga en cada linea lo que la empresa ya pago o le retuvieron:
+**Deducciones pre-cargadas:** el wizard auto-calcula estos valores desde la contabilidad. El usuario los puede ajustar:
 
-| Campo | Que es |
-|---|---|
-| Retenciones sufridas | IIBB que te retuvieron tus clientes al cobrarte |
-| Percepciones sufridas | IIBB que te percibieron tus proveedores al facturarte |
-| Recaudaciones bancarias | IIBB que el banco te debito automaticamente |
-| Saldo anterior | Saldo a favor que arrastra del mes pasado |
+| Campo | Que es | De donde sale |
+|---|---|---|
+| Retenciones sufridas | IIBB que te retuvieron tus clientes al cobrarte | Tax lines IIBB en cobros inbound |
+| Percepciones sufridas | IIBB que te percibieron tus proveedores al facturarte | Tax lines IIBB en facturas de compra |
+| Recaudaciones bancarias | IIBB que el banco te debito automaticamente | **Manual** (dato bancario) |
+| Saldo anterior | Saldo a favor que arrastra del mes pasado | Liquidacion del periodo anterior |
+
+**Trazabilidad (smart buttons):** cada linea tiene un boton `fa-external-link` que abre un formulario detallado con:
+
+- **Boton "N Percepciones"** → abre las facturas de compra que originaron el monto de percepciones sufridas
+- **Boton "N Retenciones"** → abre los cobros que originaron el monto de retenciones sufridas
+- **Boton "Saldo Anterior"** → abre la liquidacion del periodo anterior de donde se arrastro el saldo
+
+Esto permite al contador verificar de donde sale cada numero sin salir de la liquidacion.
+
+**Recalcular deducciones:** si se registran nuevas facturas o cobros despues de generar la liquidacion, el boton **"Recalcular Deducciones"** en la cabecera re-ejecuta las queries de percepciones, retenciones y saldo anterior sin regenerar toda la liquidacion.
 
 **El saldo final:**
 
@@ -893,6 +912,19 @@ Se abre la liquidacion generada. Tiene una linea por cada jurisdiccion donde hub
 
 Una vez revisado todo, click en el boton **"Confirmar"** en la cabecera.
 
+**Validaciones automaticas:** antes de confirmar, el sistema detecta situaciones a revisar:
+
+- Jurisdiccion con coeficiente = 0
+- Jurisdiccion sin deducciones cargadas (puede ser valido, pero avisa)
+- Jurisdiccion con alicuota 0% pero base gravada > 0
+- Suma de coeficientes distinta de 1.0000
+
+Si hay advertencias, se abre un wizard mostrando la lista. El usuario puede:
+- **"Confirmar Igual"** → confirma a pesar de las advertencias
+- **"Cancelar"** → vuelve a la liquidacion para corregir
+
+Si no hay advertencias, confirma directamente.
+
 La liquidacion pasa a estado "Confirmada" y queda lista para exportar.
 
 > Solo usuarios con rol **Responsable CM** pueden confirmar.
@@ -902,7 +934,15 @@ La liquidacion pasa a estado "Confirmada" y queda lista para exportar.
 
 ### Paso 9: Exportar archivos
 
-Todos los exportadores estan en **Contabilidad > Informes > Convenio Multilateral**.
+**Desde la liquidacion (recomendado):** en una liquidacion confirmada, aparecen 3 botones en la cabecera:
+
+- **"Exportar CM03"** → abre el wizard CM03 pre-poblado con esta liquidacion
+- **"Exportar SIRCAR"** → abre el wizard SIRCAR con las fechas del periodo
+- **"Exportar SIFERE"** → abre el wizard SIFERE con las fechas del periodo
+
+Esto permite exportar sin salir de la liquidacion ni buscar fechas manualmente.
+
+**Desde el menu:** todos los exportadores tambien estan en **Contabilidad > Informes > Convenio Multilateral**.
 
 #### SIRCAR — Percepciones practicadas a terceros
 
@@ -1082,16 +1122,17 @@ surtecnica_cm/
 │   ├── cm_naes.py                # Nomenclador NAES (1030 actividades pre-cargadas)
 │   ├── cm_activity.py            # Actividad NAES + alicuota por jurisdiccion
 │   ├── cm_coefficient.py         # Coeficiente unificado por ejercicio
-│   ├── cm_liquidation.py         # Liquidacion mensual + lineas
+│   ├── cm_liquidation.py         # Liquidacion mensual + lineas + export + validaciones
 │   ├── res_company.py            # Herencia: sede CM en la empresa
 │   └── account_move.py           # Herencia: jurisdiccion CM en facturas
 ├── wizard/
 │   ├── cm_coefficient_wizard.py  # Calculo automatico de CU
-│   ├── cm_liquidation_wizard.py  # Generacion de liquidacion mensual
+│   ├── cm_liquidation_wizard.py  # Generacion de liquidacion + auto-carga deducciones
 │   ├── cm_sircar_wizard.py       # Export SIRCAR (CSV)
 │   ├── cm_sifere_wizard.py       # Export SIFERE (TXT posicion fija)
 │   ├── cm_cm03_wizard.py         # Export CM03 (XML)
-│   └── cm_cm05_wizard.py         # Export CM05 (Excel)
+│   ├── cm_cm05_wizard.py         # Export CM05 (Excel)
+│   └── cm_confirm_wizard.py      # Wizard de confirmacion con advertencias
 ├── views/
 ├── security/
 ├── data/
@@ -1115,10 +1156,15 @@ cm.naes ──────────┐
               (NAES+alic)    (CU por año)
                     ▲           ▲
                     │           │
-              cm.liquidation.line
-                    │
+              cm.liquidation.line (mail.thread, tracking)
+                    │  ├── percepciones_move_ids ──→ account.move (M2M)
+                    │  ├── retenciones_payment_ids ──→ account.payment (M2M)
+                    │  └── prev_liquidation_id ──→ cm.liquidation (M2O)
                     ▼
               cm.liquidation (mensual, mail.thread)
+                    ├── action_export_cm03() → cm.cm03.wizard
+                    ├── action_export_sircar() → cm.sircar.wizard
+                    └── action_export_sifere() → cm.sifere.wizard
 
 account.move ──→ cm.jurisdiction (computed desde partner.state_id)
 ```
@@ -1178,14 +1224,27 @@ Unique: `(fiscal_year, jurisdiction_id, company_id)`.
 | Campo | Tipo | Descripcion |
 |---|---|---|
 | `name` | Char, computed stored | "CM YYYY/MM - Empresa" |
+| `currency_id` | Many2one, related `company_id.currency_id` | Para widget monetary en vistas |
 | `period` | Char(7) | Formato AAAA/MM |
 | `date_from` / `date_to` | Date | Rango del periodo |
 | `fiscal_year` | Char(4) | Ejercicio de coeficientes |
-| `state` | Selection | `draft` → `calculated` → `confirmed` |
+| `state` | Selection, tracking=True | `draft` → `calculated` → `confirmed` |
 | `line_ids` | One2many `cm.liquidation.line` | Lineas por jurisdiccion |
 | `total_*` | Float(16,2), computed stored | Sumas desde line_ids |
 
 Hereda `mail.thread`. Unique: `(period, company_id)`.
+
+Metodos de accion:
+
+| Metodo | Que hace |
+|---|---|
+| `action_confirm()` | Si hay warnings → abre wizard confirmacion. Si no → confirma directo |
+| `action_draft()` | Vuelve a borrador, borra lineas |
+| `action_export_cm03()` | Abre wizard CM03 pre-poblado con esta liquidacion |
+| `action_export_sircar()` | Abre wizard SIRCAR con fechas de la liquidacion |
+| `action_export_sifere()` | Abre wizard SIFERE con fechas de la liquidacion |
+| `action_recalculate_deductions()` | Re-ejecuta queries de deducciones sin regenerar lineas |
+| `_get_confirmation_warnings()` | Detecta coeficiente=0, sin deducciones, alicuota=0, suma coef!=1 |
 
 #### `cm.liquidation.line`
 
@@ -1193,23 +1252,59 @@ Hereda `mail.thread`. Unique: `(period, company_id)`.
 |---|---|---|
 | `liquidation_id` | Many2one (cascade) | Liquidacion padre |
 | `jurisdiction_id` | Many2one (restrict) | Jurisdiccion |
+| `currency_id` | Many2one, related | Para widget monetary |
 | `coefficient` | Float(8,4) | CU aplicado |
 | `base_gravada` | Float(16,2) | Base imponible total |
 | `base_distribuida` | Float(16,2), computed stored | `base_gravada * coefficient` |
 | `alicuota` | Float(6,4) | Tasa IIBB |
 | `impuesto_determinado` | Float(16,2), computed stored | `base_distribuida * alicuota / 100` |
-| `retenciones_sufridas` | Float(16,2) | Ret. IIBB sufridas |
-| `percepciones_sufridas` | Float(16,2) | Perc. IIBB sufridas |
-| `recaudaciones_bancarias` | Float(16,2) | Rec. bancarias |
-| `saldo_anterior` | Float(16,2) | Arrastre periodo anterior |
+| `retenciones_sufridas` | Float(16,2), tracking | Ret. IIBB sufridas |
+| `percepciones_sufridas` | Float(16,2), tracking | Perc. IIBB sufridas |
+| `recaudaciones_bancarias` | Float(16,2), tracking | Rec. bancarias |
+| `saldo_anterior` | Float(16,2), tracking | Arrastre periodo anterior |
 | `total_deducciones` | Float(16,2), computed stored | Suma de deducciones |
 | `saldo` | Float(16,2), computed stored | `impuesto - deducciones` |
+| `percepciones_move_ids` | Many2many `account.move` | Facturas compra origen percepciones |
+| `retenciones_payment_ids` | Many2many `account.payment` | Cobros origen retenciones |
+| `prev_liquidation_id` | Many2one `cm.liquidation` | Liquidacion anterior (saldo arrastrado) |
+| `percepciones_count` | Integer, computed | Cantidad de facturas vinculadas |
+| `retenciones_count` | Integer, computed | Cantidad de cobros vinculados |
+
+Hereda `mail.thread` (audit trail en campos de deduccion via tracking).
+
+Smart buttons (formulario detallado de linea):
+
+| Metodo | Que abre |
+|---|---|
+| `action_view_percepciones()` | Facturas de compra origen de percepciones |
+| `action_view_retenciones()` | Cobros origen de retenciones |
+| `action_view_prev_liquidation()` | Liquidacion anterior vinculada |
+| `action_open_form()` | Formulario detallado de la linea (target=new) |
+
+#### `cm.confirm.wizard`
+
+| Campo | Tipo | Descripcion |
+|---|---|---|
+| `liquidation_id` | Many2one `cm.liquidation` | Liquidacion a confirmar |
+| `warnings_text` | Text, readonly | Lista de advertencias detectadas |
+
+Metodo `action_confirm_anyway()`: confirma la liquidacion a pesar de las advertencias.
 
 ### Herencias
 
 **`res.company`:** agrega `cm_sede_jurisdiction_id` (Many2one → `cm.jurisdiction`).
 
 **`account.move`:** agrega `cm_jurisdiction_id` (computed, stored, readonly=False). Se resuelve automaticamente desde `partner_shipping_id.state_id` o `partner_id.state_id`. Usa cache local para evitar N+1 queries.
+
+#### `cm.liquidation.wizard` — metodos de auto-carga de deducciones
+
+| Metodo | Que busca | Retorna |
+|---|---|---|
+| `_get_percepciones_sufridas(date_from, date_to, company_id)` | Tax lines IIBB ('07') en facturas de compra posted, agrupadas por `cm_jurisdiction_id` | `{jur_id: {'amount': float, 'move_ids': [int]}}` |
+| `_get_retenciones_sufridas(date_from, date_to, company_id)` | Tax lines IIBB en cobros inbound, resolviendo jurisdiccion desde `partner_id.state_id` con cache | `{jur_id: {'amount': float, 'payment_ids': [int]}}` |
+| `_get_saldo_anterior(period, company_id)` | Lineas con saldo negativo en liquidacion anterior confirmada/calculada | `{jur_id: {'amount': float, 'liquidation_id': int}}` |
+
+Estos metodos se usan tanto en `action_generate()` como en `action_recalculate_deductions()` del modelo.
 
 ### Formatos de exportacion
 
@@ -1269,7 +1364,9 @@ Requiere `openpyxl`.
 | Grupo | Hereda de | Puede hacer |
 |---|---|---|
 | `group_cm_user` | `account.group_account_user` | Ver maestros, editar liquidaciones, usar exportadores |
-| `group_cm_manager` | `group_cm_user` | Todo: crear/editar/borrar maestros, calcular coeficientes, confirmar liquidaciones |
+| `group_cm_manager` | `group_cm_user` | Todo: crear/editar/borrar maestros, calcular coeficientes, confirmar liquidaciones, wizard de confirmacion |
+
+Wizards con acceso restringido a manager: `cm.coefficient.wizard`, `cm.confirm.wizard`.
 
 ### Dependencias
 
@@ -1292,3 +1389,12 @@ Libreria Python opcional: `openpyxl` (solo para CM05).
 | Exportadores como TransientModel con estado draft/done | Auto-limpieza, patron consistente |
 | Percepciones por `l10n_ar_tribute_afip_code = '07'` | Estandar de la localizacion argentina |
 | `noupdate=1` en jurisdicciones | No se sobrescriben al actualizar el modulo |
+| Auto-poblar deducciones editables | El wizard pre-carga valores verificables, el contador ajusta si es necesario |
+| M2M para trazabilidad (`percepciones_move_ids`, `retenciones_payment_ids`) | Permite navegar desde la deduccion hasta el documento origen con smart buttons |
+| Wizard intermedio de confirmacion | Evita confirmaciones accidentales sin bloquear el flujo (el usuario decide) |
+| Botones de exportacion en la liquidacion | Evita ir a otro menu, pre-carga fechas y liquidacion automaticamente |
+| Kanban como vista default de liquidaciones | Vista rapida del estado de cada periodo, agrupado por estado |
+| `mail.thread` en `cm.liquidation.line` | Audit trail de cambios manuales en campos de deduccion |
+| `currency_id` related en liquidacion y linea | Necesario para widget monetary en kanban y formularios |
+| Recalcular deducciones sin regenerar | Permite actualizar datos si se cargaron facturas/cobros despues de generar |
+| Jurisdicciones con deducciones sin ventas | Incluye lineas donde hay percepciones/retenciones pero no hubo ventas en el periodo |

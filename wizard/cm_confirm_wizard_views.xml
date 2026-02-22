@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- Wizard de confirmacion con advertencias -->
+    <record id="cm_confirm_wizard_form" model="ir.ui.view">
+        <field name="name">cm.confirm.wizard.form</field>
+        <field name="model">cm.confirm.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Confirmar Liquidacion">
+                <group>
+                    <p class="text-warning fw-bold">
+                        Se detectaron las siguientes situaciones a revisar:
+                    </p>
+                    <field name="warnings_text" nolabel="1" colspan="2"
+                           widget="text" readonly="1"/>
+                    <field name="liquidation_id" invisible="1"/>
+                </group>
+                <footer>
+                    <button name="action_confirm_anyway" string="Confirmar Igual"
+                            type="object" class="btn-primary"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</odoo>

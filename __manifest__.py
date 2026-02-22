@@ -40,6 +40,7 @@
         'wizard/cm_sifere_wizard_views.xml',
         'wizard/cm_cm03_wizard_views.xml',
         'wizard/cm_cm05_wizard_views.xml',
+        'wizard/cm_confirm_wizard_views.xml',
         'views/menu_views.xml',
     ],
     'installable': True,

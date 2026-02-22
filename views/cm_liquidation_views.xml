@@ -1,12 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
 
-    <!-- Liquidación - List -->
+    <!-- Liquidacion - Kanban (Fase 5) -->
+    <record id="cm_liquidation_kanban" model="ir.ui.view">
+        <field name="name">cm.liquidation.kanban</field>
+        <field name="model">cm.liquidation</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" class="o_kanban_small_column">
+                <field name="state"/>
+                <field name="currency_id"/>
+                <templates>
+                    <t t-name="card">
+                        <field name="period" class="fw-bold fs-5"/>
+                        <div class="text-muted">
+                            Ejercicio: <field name="fiscal_year"/>
+                        </div>
+                        <hr class="mt-1 mb-1"/>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted">Impuesto</span>
+                            <field name="total_impuesto" widget="monetary"/>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted">Deducciones</span>
+                            <field name="total_deducciones" widget="monetary"/>
+                        </div>
+                        <div class="d-flex justify-content-between fw-bold mt-1">
+                            <span>Saldo</span>
+                            <field name="total_saldo" widget="monetary"/>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Liquidacion - List -->
     <record id="cm_liquidation_list" model="ir.ui.view">
         <field name="name">cm.liquidation.list</field>
         <field name="model">cm.liquidation</field>
         <field name="arch" type="xml">
-            <tree decoration-info="state == 'draft'"
+            <list decoration-info="state == 'draft'"
                   decoration-warning="state == 'calculated'"
                   decoration-success="state == 'confirmed'">
                 <field name="period"/>
@@ -21,16 +54,16 @@
                        decoration-info="state == 'draft'"
                        decoration-warning="state == 'calculated'"
                        decoration-success="state == 'confirmed'"/>
-            </tree>
+            </list>
         </field>
     </record>
 
-    <!-- Liquidación - Form -->
+    <!-- Liquidacion - Form -->
     <record id="cm_liquidation_form" model="ir.ui.view">
         <field name="name">cm.liquidation.form</field>
         <field name="model">cm.liquidation</field>
         <field name="arch" type="xml">
-            <form string="Liquidación CM">
+            <form string="Liquidacion CM">
                 <header>
                     <button name="action_confirm" string="Confirmar"
                             type="object" class="btn-primary"
@@ -40,6 +73,21 @@
                             type="object"
                             invisible="state != 'calculated'"
                             groups="surtecnica_cm.group_cm_manager"/>
+                    <button name="action_recalculate_deductions"
+                            string="Recalcular Deducciones"
+                            type="object" class="btn-secondary"
+                            invisible="state != 'calculated'"
+                            groups="surtecnica_cm.group_cm_manager"/>
+                    <!-- Botones de exportacion (Fase 3) -->
+                    <button name="action_export_cm03" string="Exportar CM03"
+                            type="object" class="btn-secondary"
+                            invisible="state != 'confirmed'"/>
+                    <button name="action_export_sircar" string="Exportar SIRCAR"
+                            type="object" class="btn-secondary"
+                            invisible="state != 'confirmed'"/>
+                    <button name="action_export_sifere" string="Exportar SIFERE"
+                            type="object" class="btn-secondary"
+                            invisible="state != 'confirmed'"/>
                     <field name="state" widget="statusbar"
                            statusbar_visible="draft,calculated,confirmed"/>
                 </header>
@@ -59,9 +107,9 @@
                         </group>
                     </group>
                     <notebook>
-                        <page string="Líneas por Jurisdicción" name="lines">
+                        <page string="Lineas por Jurisdiccion" name="lines">
                             <field name="line_ids">
-                                <tree editable="bottom">
+                                <list editable="bottom">
                                     <field name="jurisdiction_id"/>
                                     <field name="activity_id"/>
                                     <field name="coefficient"/>
@@ -79,7 +127,9 @@
                                     <field name="saldo" sum="Total" decoration-bf="1"
                                            decoration-danger="saldo &gt; 0"
                                            decoration-success="saldo &lt;= 0"/>
-                                </tree>
+                                    <button name="action_open_form" type="object"
+                                            icon="fa-external-link" title="Ver detalle"/>
+                                </list>
                             </field>
                         </page>
                     </notebook>
@@ -99,7 +149,80 @@
         </field>
     </record>
 
-    <!-- Liquidación - Search -->
+    <!-- Linea de liquidacion - Form con smart buttons (Fase 2) -->
+    <record id="cm_liquidation_line_form" model="ir.ui.view">
+        <field name="name">cm.liquidation.line.form</field>
+        <field name="model">cm.liquidation.line</field>
+        <field name="arch" type="xml">
+            <form string="Detalle Jurisdiccion">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_percepciones" type="object"
+                                class="oe_stat_button" icon="fa-file-text-o"
+                                invisible="percepciones_count == 0">
+                            <field name="percepciones_count" string="Percepciones"
+                                   widget="statinfo"/>
+                        </button>
+                        <button name="action_view_retenciones" type="object"
+                                class="oe_stat_button" icon="fa-money"
+                                invisible="retenciones_count == 0">
+                            <field name="retenciones_count" string="Retenciones"
+                                   widget="statinfo"/>
+                        </button>
+                        <button name="action_view_prev_liquidation" type="object"
+                                class="oe_stat_button" icon="fa-history"
+                                invisible="not prev_liquidation_id">
+                            <span class="o_stat_text">Saldo Anterior</span>
+                        </button>
+                    </div>
+                    <group>
+                        <group string="Jurisdiccion">
+                            <field name="jurisdiction_id" readonly="1"/>
+                            <field name="activity_id"/>
+                            <field name="coefficient"/>
+                            <field name="alicuota"/>
+                        </group>
+                        <group string="Base Imponible">
+                            <field name="base_gravada"/>
+                            <field name="base_no_gravada"/>
+                            <field name="base_exenta"/>
+                            <field name="base_distribuida"/>
+                            <field name="impuesto_determinado"/>
+                        </group>
+                    </group>
+                    <group string="Deducciones">
+                        <group>
+                            <field name="retenciones_sufridas"/>
+                            <field name="percepciones_sufridas"/>
+                        </group>
+                        <group>
+                            <field name="recaudaciones_bancarias"/>
+                            <field name="saldo_anterior"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="total_deducciones"/>
+                        </group>
+                        <group>
+                            <field name="saldo" decoration-bf="1"
+                                   decoration-danger="saldo &gt; 0"
+                                   decoration-success="saldo &lt;= 0"/>
+                        </group>
+                    </group>
+                    <!-- Campos de trazabilidad ocultos (usados por smart buttons) -->
+                    <field name="percepciones_move_ids" invisible="1"/>
+                    <field name="retenciones_payment_ids" invisible="1"/>
+                    <field name="prev_liquidation_id" invisible="1"/>
+                    <field name="currency_id" invisible="1"/>
+                    <field name="liquidation_id" invisible="1"/>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Liquidacion - Search -->
     <record id="cm_liquidation_search" model="ir.ui.view">
         <field name="name">cm.liquidation.search</field>
         <field name="model">cm.liquidation</field>
@@ -115,7 +238,7 @@
                 <filter name="confirmed" string="Confirmada"
                         domain="[('state', '=', 'confirmed')]"/>
                 <separator/>
-                <filter name="group_period" string="Período"
+                <filter name="group_period" string="Periodo"
                         context="{'group_by': 'period'}"/>
                 <filter name="group_state" string="Estado"
                         context="{'group_by': 'state'}"/>
@@ -123,10 +246,11 @@
         </field>
     </record>
 
+    <!-- Action con kanban como vista default (Fase 5) -->
     <record id="action_cm_liquidation" model="ir.actions.act_window">
         <field name="name">Liquidaciones CM</field>
         <field name="res_model">cm.liquidation</field>
-        <field name="view_mode">list,form</field>
+        <field name="view_mode">kanban,list,form</field>
     </record>
 
 </odoo>
