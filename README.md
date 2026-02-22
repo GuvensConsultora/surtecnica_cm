@@ -100,7 +100,130 @@ Cuando una empresa opera en **una sola provincia**, paga IIBB directamente ahi s
    CM05 → justificacion de como se calcularon los coeficientes del año
 ```
 
-**En resumen:** la empresa no paga IIBB sobre el total en cada provincia; reparte la base proporcionalmente usando un coeficiente que refleja cuanto opera realmente en cada una.
+### Como convive el CM con cada provincia (ejemplo Mendoza)
+
+Para entender bien el CM hay que entender primero **como cobra IIBB una provincia sin CM**.
+
+**Contribuyente local (sin CM):**
+Si una empresa opera SOLO en Mendoza, es "contribuyente local" de esa provincia. Paga IIBB directo a ATM (Administracion Tributaria Mendoza) sobre el **100%** de sus ingresos. No hay coeficientes ni distribucion: todo lo que factura tributa en Mendoza.
+
+**Contribuyente CM (con CM):**
+Si esa misma empresa abre operaciones en Cordoba y Buenos Aires, ya no puede pagar el 100% en cada provincia (pagaria 3 veces). Ahi entra al regimen de CM y Mendoza pasa a recibir solo la **porcion que le corresponde** segun el coeficiente.
+
+Pero aca viene la parte clave: **las provincias no esperan a que la empresa liquide el CM para cobrar**. Cada provincia tiene mecanismos para cobrar IIBB por adelantado, en el momento en que ocurre la operacion.
+
+```
+ LAS 3 VIAS POR LAS QUE UNA PROVINCIA COBRA IIBB "POR ADELANTADO"
+ ==================================================================
+
+ 1. PERCEPCIONES (te cobran de mas en las facturas de compra)
+    ─────────────────────────────────────────────────────────
+    Cuando un proveedor de Mendoza te factura, ATM le obliga a
+    cobrarte un % extra en concepto de percepcion IIBB.
+
+    Ejemplo: compras mercaderia por $100.000 + 21% IVA + 3% percepcion IIBB
+    La factura del proveedor viene con $3.000 de percepcion.
+    Ese dinero va directo a ATM como pago a cuenta de tu IIBB.
+
+    ¿Quien lo cobra? → Tu proveedor, por orden de ATM
+    ¿Cuando? → En cada factura de compra
+    ¿Como se entera Odoo? → Es una linea de impuesto en la factura de compra
+
+
+ 2. RETENCIONES (te descuentan cuando te pagan)
+    ────────────────────────────────────────────
+    Cuando un cliente de Mendoza te paga una factura, ATM le obliga
+    a retenerte un % y depositarlo en la provincia.
+
+    Ejemplo: le facturaste $100.000. Al pagarte, el cliente te transfiere
+    $97.000 y deposita $3.000 en ATM como retencion IIBB.
+
+    ¿Quien lo cobra? → Tu cliente, por orden de ATM
+    ¿Cuando? → En cada pago que te hacen
+    ¿Como se entera Odoo? → Es una linea de impuesto en el recibo de cobro
+
+
+ 3. RECAUDACIONES BANCARIAS / SIRCREB (el banco te debita)
+    ──────────────────────────────────────────────────────
+    El banco donde tenes cuenta mira tus movimientos y le descuenta
+    automaticamente un % a favor de cada provincia donde operas.
+
+    Ejemplo: durante el mes entraron $500.000 a tu cuenta. El banco
+    te debita $1.500 a favor de Mendoza (0.30% segun padron SIRCREB).
+
+    ¿Quien lo cobra? → Tu banco, automaticamente
+    ¿Cuando? → Mensual, segun movimientos bancarios
+    ¿Como se entera Odoo? → Se carga manualmente en la liquidacion CM
+```
+
+```
+ COMO SE CIERRA LA CUENTA CADA MES
+ ==================================================================
+
+ Al fin de mes, cuando la empresa hace la liquidacion CM, pasa esto:
+
+ ┌─────────────────────────────────────────────────────────────────┐
+ │ LIQUIDACION CM - MENDOZA (jurisdiccion 913) - Enero 2026       │
+ ├─────────────────────────────────────────────────────────────────┤
+ │                                                                 │
+ │ Base gravada total del mes:           $1.000.000                │
+ │ Coeficiente Mendoza:                  × 0.3000                  │
+ │                                       ─────────                 │
+ │ Base distribuida a Mendoza:           $300.000                  │
+ │ Alicuota Mendoza:                     × 3.00%                   │
+ │                                       ─────────                 │
+ │ IMPUESTO DETERMINADO:                 $9.000   ← lo que Mendoza│
+ │                                                    tiene derecho│
+ │                                                    a cobrar     │
+ │ Menos lo que Mendoza YA cobro:                                  │
+ │   Percepciones sufridas:              -$2.000                   │
+ │   Retenciones sufridas:               -$3.000                   │
+ │   Recaudaciones bancarias (SIRCREB):  -$1.500                   │
+ │   Saldo a favor mes anterior:         -$0                       │
+ │                                       ─────────                 │
+ │ TOTAL DEDUCCIONES:                    -$6.500                   │
+ │                                       ─────────                 │
+ │ SALDO A PAGAR:                        $2.500   ← solo falta    │
+ │                                                    pagar esto   │
+ └─────────────────────────────────────────────────────────────────┘
+
+ Si las deducciones fueran MAS que el impuesto (por ejemplo $10.000
+ de deducciones contra $9.000 de impuesto), el saldo seria -$1.000
+ (a favor). Ese saldo se arrastra al mes siguiente como deduccion.
+```
+
+```
+ ¿QUE PASA SI MENDOZA YA COBRO MAS DE LO QUE LE CORRESPONDE?
+ ==================================================================
+
+ Es comun. Las percepciones, retenciones y SIRCREB se calculan sobre
+ montos brutos, sin considerar el coeficiente CM. Entonces puede pasar
+ que Mendoza ya cobro $12.000 entre los 3 mecanismos, pero por CM le
+ corresponden solo $9.000.
+
+ En ese caso el saldo es -$3.000 (a favor de la empresa).
+ Ese credito se usa el mes siguiente. Si se acumula mucho saldo a
+ favor, la empresa puede pedir devolucion a ATM.
+```
+
+```
+ RESUMEN: ¿QUIEN COBRA QUE?
+ ==================================================================
+
+ ┌────────────────────┬──────────────────┬─────────────┬──────────────────┐
+ │ Concepto           │ Quien cobra      │ Cuando      │ Se deduce en CM? │
+ ├────────────────────┼──────────────────┼─────────────┼──────────────────┤
+ │ Percepciones IIBB  │ Tus proveedores  │ Al comprar  │ Si               │
+ │ Retenciones IIBB   │ Tus clientes     │ Al cobrarte │ Si               │
+ │ SIRCREB            │ Tu banco         │ Mensual     │ Si               │
+ │ Saldo CM           │ La provincia     │ Mensual     │ Es el neto final │
+ └────────────────────┴──────────────────┴─────────────┴──────────────────┘
+
+ Los primeros 3 son pagos a cuenta. El saldo CM es la diferencia.
+ Si los pagos a cuenta superan el impuesto, la empresa tiene credito.
+```
+
+**En resumen:** la empresa no paga IIBB sobre el total en cada provincia; reparte la base proporcionalmente usando un coeficiente que refleja cuanto opera realmente en cada una. Las provincias cobran adelantos por 3 vias (percepciones, retenciones, SIRCREB) y el CM cierra la cuenta descontando esos adelantos del impuesto que corresponde a cada jurisdiccion.
 
 ### Que resuelve este modulo
 
