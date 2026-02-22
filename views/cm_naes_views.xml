@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="cm_naes_list" model="ir.ui.view">
+        <field name="name">cm.naes.list</field>
+        <field name="model">cm.naes</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="code"/>
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="cm_naes_search" model="ir.ui.view">
+        <field name="name">cm.naes.search</field>
+        <field name="model">cm.naes</field>
+        <field name="arch" type="xml">
+            <search string="Nomenclador NAES">
+                <field name="code"/>
+                <field name="name"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_cm_naes" model="ir.actions.act_window">
+        <field name="name">Nomenclador NAES</field>
+        <field name="res_model">cm.naes</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

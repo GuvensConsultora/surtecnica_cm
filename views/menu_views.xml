@@ -17,8 +17,14 @@
               action="action_cm_jurisdiction"
               sequence="10"/>
 
+    <menuitem id="menu_cm_naes"
+              name="Nomenclador NAES"
+              parent="menu_cm_config"
+              action="action_cm_naes"
+              sequence="15"/>
+
     <menuitem id="menu_cm_activity"
-              name="Actividades CUACM"
+              name="Actividades NAES"
               parent="menu_cm_config"
               action="action_cm_activity"
               sequence="20"/>

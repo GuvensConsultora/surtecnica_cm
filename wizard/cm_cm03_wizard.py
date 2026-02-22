@@ -69,7 +69,7 @@ class CmCm03Wizard(models.TransientModel):
             ET.SubElement(jur_elem, 'Codigo').text = line.jurisdiction_id.code
             ET.SubElement(jur_elem, 'Nombre').text = line.jurisdiction_id.name
             if line.activity_id:
-                ET.SubElement(jur_elem, 'CodigoCUACM').text = line.activity_id.cuacm_code
+                ET.SubElement(jur_elem, 'CodigoNAES').text = line.activity_id.naes_id.code
             ET.SubElement(jur_elem, 'Coeficiente').text = f'{line.coefficient:.4f}'
             ET.SubElement(jur_elem, 'BaseGravada').text = f'{line.base_gravada:.2f}'
             ET.SubElement(jur_elem, 'BaseDistribuida').text = f'{line.base_distribuida:.2f}'

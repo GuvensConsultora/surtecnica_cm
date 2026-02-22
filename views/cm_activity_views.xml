@@ -7,8 +7,7 @@
         <field name="arch" type="xml">
             <tree editable="bottom">
                 <field name="jurisdiction_id"/>
-                <field name="cuacm_code"/>
-                <field name="name"/>
+                <field name="naes_id"/>
                 <field name="alicuota"/>
                 <field name="art_regimen"/>
                 <field name="date_from" optional="show"/>
@@ -22,13 +21,12 @@
         <field name="name">cm.activity.form</field>
         <field name="model">cm.activity</field>
         <field name="arch" type="xml">
-            <form string="Actividad CUACM">
+            <form string="Actividad NAES">
                 <sheet>
                     <group>
                         <group>
                             <field name="jurisdiction_id"/>
-                            <field name="cuacm_code"/>
-                            <field name="name"/>
+                            <field name="naes_id"/>
                         </group>
                         <group>
                             <field name="alicuota"/>
@@ -47,9 +45,8 @@
         <field name="name">cm.activity.search</field>
         <field name="model">cm.activity</field>
         <field name="arch" type="xml">
-            <search string="Actividades CUACM">
-                <field name="cuacm_code"/>
-                <field name="name"/>
+            <search string="Actividades NAES">
+                <field name="naes_id"/>
                 <field name="jurisdiction_id"/>
                 <separator/>
                 <filter name="group_jurisdiction" string="Jurisdicción"
@@ -59,7 +56,7 @@
     </record>
 
     <record id="action_cm_activity" model="ir.actions.act_window">
-        <field name="name">Actividades CUACM</field>
+        <field name="name">Actividades NAES</field>
         <field name="res_model">cm.activity</field>
         <field name="view_mode">list,form</field>
     </record>

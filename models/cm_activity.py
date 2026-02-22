@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api
+from odoo import models, fields
 
 
 class CmActivity(models.Model):
-    """Actividad CUACM por jurisdicción.
+    """Actividad NAES por jurisdicción.
 
     // Por qué: Cada jurisdicción puede tener distintas actividades con
-    // alícuotas diferentes. El CUACM (Código Único de Actividad CM)
-    // es el nomenclador oficial de COMARB.
+    // alícuotas diferentes. El NAES (Nomenclador de Actividades Económicas
+    // del Sistema Federal) reemplaza al CUACM desde 2018 (RG CA 7/2017).
     """
     _name = 'cm.activity'
-    _description = 'Actividad CUACM por Jurisdicción'
-    _order = 'jurisdiction_id, cuacm_code'
+    _description = 'Actividad NAES por Jurisdicción'
+    _order = 'jurisdiction_id, naes_id'
 
     company_id = fields.Many2one(
         'res.company', string='Empresa', required=True,
@@ -22,11 +22,13 @@ class CmActivity(models.Model):
         'cm.jurisdiction', string='Jurisdicción', required=True,
         ondelete='restrict',
     )
-    cuacm_code = fields.Char(
-        string='Código CUACM', size=10, required=True,
-        help='Código Único de Actividad del Convenio Multilateral',
+    # // Por qué: Many2one a cm.naes permite seleccionar de un dropdown
+    # // con los ~1030 códigos pre-cargados en vez de tipear manualmente
+    naes_id = fields.Many2one(
+        'cm.naes', string='Actividad NAES', required=True,
+        ondelete='restrict',
+        help='Actividad del Nomenclador NAES (ex-CUACM)',
     )
-    name = fields.Char(string='Descripción Actividad', required=True)
     alicuota = fields.Float(
         string='Alícuota %', digits=(6, 4), required=True,
         help='Tasa IIBB para esta actividad en esta jurisdicción',
@@ -47,6 +49,6 @@ class CmActivity(models.Model):
     date_to = fields.Date(string='Vigencia Hasta')
 
     _sql_constraints = [
-        ('activity_unique', 'unique(company_id, jurisdiction_id, cuacm_code)',
-         'Ya existe esta actividad CUACM en esta jurisdicción para esta empresa.'),
+        ('activity_unique', 'unique(company_id, jurisdiction_id, naes_id)',
+         'Ya existe esta actividad NAES en esta jurisdicción para esta empresa.'),
     ]
