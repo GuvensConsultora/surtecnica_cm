@@ -49,10 +49,25 @@ Cuando una empresa opera en **una sola provincia**, paga IIBB directamente ahi s
  Son las facturas de venta, asignadas a la jurisdiccion del CLIENTE.
  Si le vendiste a un cliente de Cordoba, ese ingreso se computa en Cordoba.
 
+ ¿QUE MONTO SE TOMA?
+ El monto NETO de la factura, sin IVA ni otros impuestos nacionales.
+ En Odoo es el campo "Base Imponible" (amount_untaxed).
+
+ Se llama "ingreso bruto" porque no se le restan costos, gastos ni
+ deducciones de ganancias — es la venta pura. Pero se EXCLUYEN los
+ impuestos que son recaudacion de otro fisco (IVA, Imp. Internos, etc.)
+ porque esos no son ingresos de la empresa, son recaudacion del Estado.
+
+ Ejemplo de una factura:
+   Subtotal (precio × cantidad):        $100.000  ← ESTO se toma
+   IVA 21%:                              $21.000  ← esto NO
+   Percepcion IIBB 3%:                    $3.000  ← esto NO
+   Total factura:                        $124.000
+
  Ejemplo (año 2025):
-   Ventas a clientes de Cordoba:       $3.500.000
-   Ventas a clientes de Santa Fe:      $2.500.000
-   Ventas a clientes de Buenos Aires:  $4.000.000
+   Ventas a clientes de Cordoba:       $3.500.000  (neto sin IVA)
+   Ventas a clientes de Santa Fe:      $2.500.000  (neto sin IVA)
+   Ventas a clientes de Buenos Aires:  $4.000.000  (neto sin IVA)
    TOTAL PAIS:                        $10.000.000
 
 
@@ -60,6 +75,7 @@ Cuando una empresa opera en **una sola provincia**, paga IIBB directamente ahi s
  ─────────────────────
  Son las facturas de compra, asignadas a la jurisdiccion del PROVEEDOR.
  Si le compraste a un proveedor de Cordoba, ese gasto se computa en Cordoba.
+ Tambien se toma el monto neto sin IVA (amount_untaxed).
 
  Incluye todo lo que la empresa pago para operar en cada provincia:
    - Compras de mercaderia a proveedores de esa provincia
