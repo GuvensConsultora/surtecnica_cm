@@ -21,7 +21,7 @@ Antes de arrancar, conviene saber que es cada cosa:
 
 ### El problema
 
-Una empresa que vende desde Buenos Aires a clientes en Cordoba, Santa Fe y Mendoza tiene que pagar IIBB en **cada provincia** donde genera ingresos. Odoo no sabe esto: solo maneja un impuesto plano, sin distribuir la base entre jurisdicciones.
+Una empresa que vende desde Mendoza a clientes en Buenos Aires, Cordoba y Santa Fe tiene que pagar IIBB en **cada provincia** donde genera ingresos. Odoo no sabe esto: solo maneja un impuesto plano, sin distribuir la base entre jurisdicciones.
 
 El regimen de **Convenio Multilateral** (CM) exige:
 
@@ -64,10 +64,10 @@ Cuando una empresa opera en **una sola provincia**, paga IIBB directamente ahi s
    Percepcion IIBB 3%:                    $3.000  ← esto NO
    Total factura:                        $124.000
 
- Ejemplo (año 2025):
-   Ventas a clientes de Cordoba:       $3.500.000  (neto sin IVA)
-   Ventas a clientes de Santa Fe:      $2.500.000  (neto sin IVA)
-   Ventas a clientes de Buenos Aires:  $4.000.000  (neto sin IVA)
+ Ejemplo (año 2025, empresa con sede en Mendoza):
+   Ventas a clientes de Mendoza:       $4.000.000  (neto sin IVA)
+   Ventas a clientes de Buenos Aires:  $3.500.000  (neto sin IVA)
+   Ventas a clientes de Cordoba:       $2.500.000  (neto sin IVA)
    TOTAL PAIS:                        $10.000.000
 
 
@@ -86,10 +86,10 @@ Cuando una empresa opera en **una sola provincia**, paga IIBB directamente ahi s
    - Fletes, logistica, mantenimiento en esa provincia
    - Cualquier factura de compra de un proveedor de esa provincia
 
- Ejemplo (año 2025):
-   Compras a proveedores de Cordoba:       $2.800.000
-   Compras a proveedores de Santa Fe:      $2.000.000
-   Compras a proveedores de Buenos Aires:  $3.200.000
+ Ejemplo (año 2025, empresa con sede en Mendoza):
+   Compras a proveedores de Mendoza:       $3.200.000
+   Compras a proveedores de Buenos Aires:  $2.800.000
+   Compras a proveedores de Cordoba:       $2.000.000
    TOTAL PAIS:                             $8.000.000
 
 
@@ -101,8 +101,8 @@ Cuando una empresa opera en **una sola provincia**, paga IIBB directamente ahi s
  tendria un coeficiente alto. Combinando ingresos Y gastos se mide
  mejor la presencia real:
 
-   - Si vendes mucho a Cordoba Y compras mucho ahi → coeficiente alto
-   - Si vendes mucho a Cordoba pero no gastas nada ahi → coeficiente medio
+   - Si vendes mucho a Mendoza Y compras mucho ahi → coeficiente alto
+   - Si vendes mucho a Buenos Aires pero no gastas nada ahi → coeficiente medio
    - Si no vendes ni gastas en Cordoba → coeficiente cero
 
 
@@ -112,19 +112,19 @@ Cuando una empresa opera en **una sola provincia**, paga IIBB directamente ahi s
 
    CU = (% ingresos de esa provincia × 50%) + (% gastos de esa provincia × 50%)
 
- Ejemplo completo:
+ Ejemplo completo (empresa con sede en Mendoza):
  ┌─────────────┬──────────┬─────────┬──────────┬─────────┬────────┐
  │ Jurisdiccion│ Ingresos │ % Ing.  │ Gastos   │ % Gasto │   CU   │
  ├─────────────┼──────────┼─────────┼──────────┼─────────┼────────┤
- │ Cordoba     │ 3.500.000│ 35.00%  │ 2.800.000│ 35.00%  │ 0.3500 │
- │ Santa Fe    │ 2.500.000│ 25.00%  │ 2.000.000│ 25.00%  │ 0.2500 │
- │ Buenos Aires│ 4.000.000│ 40.00%  │ 3.200.000│ 40.00%  │ 0.4000 │
+ │ Mendoza     │ 4.000.000│ 40.00%  │ 3.200.000│ 40.00%  │ 0.4000 │
+ │ Buenos Aires│ 3.500.000│ 35.00%  │ 2.800.000│ 35.00%  │ 0.3500 │
+ │ Cordoba     │ 2.500.000│ 25.00%  │ 2.000.000│ 25.00%  │ 0.2500 │
  ├─────────────┼──────────┼─────────┼──────────┼─────────┼────────┤
  │ TOTAL       │10.000.000│100.00%  │ 8.000.000│100.00%  │ 1.0000 │
  └─────────────┴──────────┴─────────┴──────────┴─────────┴────────┘
 
- Cordoba: (35.00% × 50%) + (35.00% × 50%) = 17.50% + 17.50% = 0.3500
- Santa Fe: (25.00% × 50%) + (25.00% × 50%) = 12.50% + 12.50% = 0.2500
+ Mendoza:      (40.00% × 50%) + (40.00% × 50%) = 20.00% + 20.00% = 0.4000
+ Buenos Aires: (35.00% × 50%) + (35.00% × 50%) = 17.50% + 17.50% = 0.3500
 
  La suma de todos los CU siempre da 1.0000 (el 100% se reparte).
  Estos coeficientes se usan TODO el año siguiente (2026).
@@ -150,15 +150,15 @@ Cuando una empresa opera en **una sola provincia**, paga IIBB directamente ahi s
 
  2. Se DISTRIBUYE esa base a cada jurisdiccion usando el CU:
 
-    Cordoba:     $1.000.000 × 0.3500 = $350.000
-    Santa Fe:    $1.000.000 × 0.2500 = $250.000
-    Buenos Aires:$1.000.000 × 0.4000 = $400.000
+    Mendoza:      $1.000.000 × 0.4000 = $400.000
+    Buenos Aires: $1.000.000 × 0.3500 = $350.000
+    Cordoba:      $1.000.000 × 0.2500 = $250.000
 
  3. Se aplica la ALICUOTA que fija cada provincia:
 
-    Cordoba:     $350.000 × 3.50% = $12.250
-    Santa Fe:    $250.000 × 3.60% =  $9.000
-    Buenos Aires:$400.000 × 4.00% = $16.000
+    Mendoza:      $400.000 × 3.00% = $12.000
+    Buenos Aires: $350.000 × 4.00% = $14.000
+    Cordoba:      $250.000 × 3.50% =  $8.750
 
  4. Se restan las DEDUCCIONES (lo que ya te cobraron):
 
@@ -172,12 +172,12 @@ Cuando una empresa opera en **una sola provincia**, paga IIBB directamente ahi s
     ┌─────────────┬──────────┬─────────┬────────────┬─────────┐
     │ Jurisdiccion│ Impuesto │ Deduc.  │ Saldo      │         │
     ├─────────────┼──────────┼─────────┼────────────┼─────────┤
-    │ Cordoba     │ $12.250  │ $2.500  │ +$9.750    │ A pagar │
-    │ Santa Fe    │  $9.000  │ $9.500  │   -$500    │ A favor │
-    │ Buenos Aires│ $16.000  │ $4.000  │ +$12.000   │ A pagar │
+    │ Mendoza     │ $12.000  │ $13.500 │   -$1.500  │ A favor │
+    │ Buenos Aires│ $14.000  │  $4.000 │ +$10.000   │ A pagar │
+    │ Cordoba     │  $8.750  │  $2.500 │  +$6.250   │ A pagar │
     └─────────────┴──────────┴─────────┴────────────┴─────────┘
 
-    El saldo a favor de Santa Fe (-$500) se arrastra al mes siguiente.
+    El saldo a favor de Mendoza (-$1.500) se arrastra al mes siguiente.
 ```
 
 ```
@@ -195,15 +195,15 @@ Cuando una empresa opera en **una sola provincia**, paga IIBB directamente ahi s
    CM05 → justificacion de como se calcularon los coeficientes del año
 ```
 
-### Como convive el CM con cada provincia (ejemplo Mendoza)
+### Como convive el CM con cada provincia
 
 Para entender bien el CM hay que entender primero **como cobra IIBB una provincia sin CM**.
 
 **Contribuyente local (sin CM):**
-Si una empresa opera SOLO en Mendoza, es "contribuyente local" de esa provincia. Paga IIBB directo a ATM (Administracion Tributaria Mendoza) sobre el **100%** de sus ingresos. No hay coeficientes ni distribucion: todo lo que factura tributa en Mendoza.
+Si la empresa opera SOLO en Mendoza, es "contribuyente local" de esa provincia. Paga IIBB directo a ATM (Administracion Tributaria Mendoza) sobre el **100%** de sus ingresos. No hay coeficientes ni distribucion: todo lo que factura tributa en Mendoza.
 
 **Contribuyente CM (con CM):**
-Si esa misma empresa abre operaciones en Cordoba y Buenos Aires, ya no puede pagar el 100% en cada provincia (pagaria 3 veces). Ahi entra al regimen de CM y Mendoza pasa a recibir solo la **porcion que le corresponde** segun el coeficiente.
+Cuando la empresa empieza a vender tambien a Buenos Aires y Cordoba, ya no puede pagar el 100% en cada provincia (pagaria 3 veces). Ahi entra al regimen de CM y cada provincia pasa a recibir solo la **porcion que le corresponde** segun el coeficiente.
 
 Pero aca viene la parte clave: **las provincias no esperan a que la empresa liquide el CM para cobrar**. Cada provincia tiene mecanismos para cobrar IIBB por adelantado, en el momento en que ocurre la operacion.
 
@@ -365,9 +365,9 @@ No hay que hacer nada especial. Cada vez que se crea una factura, el modulo mira
 
 ```
  Factura FA-A 0001-00000150
- Cliente:       Distribuidora Norte SRL
- Provincia:     Cordoba
- Jurisdiccion:  [904] Cordoba  ← se completo solo
+ Cliente:       Ferreteria Central SA
+ Provincia:     Buenos Aires
+ Jurisdiccion:  [902] Buenos Aires  ← se completo solo
 ```
 
 **Regla de prioridad:**
@@ -412,21 +412,21 @@ Se abre la liquidacion generada. Tiene una linea por cada jurisdiccion donde hub
 
  Jurisdiccion  │ Coef.  │ Base Gravada │ Base Distrib. │ Alic. │ Impuesto
  ──────────────┼────────┼──────────────┼───────────────┼───────┼──────────
- [904] Cordoba │ 0.3500 │ 1.000.000    │ 350.000       │ 3.50% │ 12.250
- [921] Santa Fe│ 0.2500 │ 1.000.000    │ 250.000       │ 3.60% │  9.000
- [902] Bs. As. │ 0.4000 │ 1.000.000    │ 400.000       │ 4.00% │ 16.000
+ [913] Mendoza │ 0.4000 │ 1.000.000    │ 400.000       │ 3.00% │ 12.000
+ [902] Bs. As. │ 0.3500 │ 1.000.000    │ 350.000       │ 4.00% │ 14.000
+ [904] Cordoba │ 0.2500 │ 1.000.000    │ 250.000       │ 3.50% │  8.750
 ```
 
 **La cuenta que se hace en cada linea:**
 
 ```
  Base Distribuida = Base Gravada × Coeficiente
-                  = 1.000.000 × 0.3500
-                  = 350.000
+                  = 1.000.000 × 0.4000
+                  = 400.000
 
  Impuesto = Base Distribuida × Alicuota / 100
-           = 350.000 × 3.50 / 100
-           = 12.250
+           = 400.000 × 3.00 / 100
+           = 12.000
 ```
 
 **Deducciones:** el usuario carga en cada linea lo que la empresa ya pago o le retuvieron:
@@ -585,9 +585,9 @@ Cargar una linea por cada jurisdiccion donde la empresa tiene actividad. La acti
 
 | Jurisdiccion | Actividad NAES | Alicuota % | Regimen |
 |---|---|---|---|
-| [904] Cordoba | [519000] Vta. mayor art. electricos | 3.50 | Art. 2 - General |
-| [921] Santa Fe | [519000] Vta. mayor art. electricos | 3.60 | Art. 2 - General |
+| [913] Mendoza | [519000] Vta. mayor art. electricos | 3.00 | Art. 2 - General |
 | [902] Buenos Aires | [519000] Vta. mayor art. electricos | 4.00 | Art. 2 - General |
+| [904] Cordoba | [519000] Vta. mayor art. electricos | 3.50 | Art. 2 - General |
 
 **Donde conseguir los datos:**
 - **Actividad NAES:** ya esta pre-cargada, buscar por codigo o descripcion en el dropdown
@@ -625,9 +625,9 @@ Crear una linea por jurisdiccion. Al ingresar los montos, el coeficiente se calc
 
 | Ejercicio | Jurisdiccion | Ing. Jur. | Ing. Total | Gasto Jur. | Gasto Total | CU |
 |---|---|---|---|---|---|---|
-| 2026 | [904] Cordoba | 3.500.000 | 10.000.000 | 2.800.000 | 8.000.000 | 0.3500 |
-| 2026 | [921] Santa Fe | 2.500.000 | 10.000.000 | 2.000.000 | 8.000.000 | 0.2500 |
-| 2026 | [902] Bs. As. | 4.000.000 | 10.000.000 | 3.200.000 | 8.000.000 | 0.4000 |
+| 2026 | [913] Mendoza | 4.000.000 | 10.000.000 | 3.200.000 | 8.000.000 | 0.4000 |
+| 2026 | [902] Bs. As. | 3.500.000 | 10.000.000 | 2.800.000 | 8.000.000 | 0.3500 |
+| 2026 | [904] Cordoba | 2.500.000 | 10.000.000 | 2.000.000 | 8.000.000 | 0.2500 |
 
 ---
 
